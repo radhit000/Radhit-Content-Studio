@@ -13,6 +13,7 @@ import { getDocFromServer, doc } from 'firebase/firestore';
 import { db } from './firebase';
 
 const App: React.FC = () => {
+  console.log("App Component Rendered");
   // Auth State
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
@@ -58,17 +59,24 @@ const App: React.FC = () => {
   }, []);
 
   // --- FIREBASE SUBSCRIPTIONS ---
+  const isAuthReadyRef = React.useRef(false);
+
   useEffect(() => {
     // Subscribe to Auth
     const unsubscribeAuth = authService.subscribeToAuth((user) => {
-      console.log("Auth State Changed:", user ? "User Logged In" : "No User");
+      if (user) {
+        console.log("Auth: User Logged In", user.email);
+      } else {
+        console.log("Auth: No User Profile Found");
+      }
       setCurrentUser(user);
+      isAuthReadyRef.current = true;
       setIsAuthReady(true);
     });
 
     // Fallback: If auth doesn't respond in 5 seconds, force ready
     const timeout = setTimeout(() => {
-      if (!isAuthReady) {
+      if (!isAuthReadyRef.current) {
         console.warn("Auth subscription timed out, forcing ready state.");
         setIsAuthReady(true);
       }
@@ -238,6 +246,7 @@ const App: React.FC = () => {
   }, [originalImage, originalMimeType, selectedFeature, currentUser?.customApiKey, appSettings]);
 
   const handleReset = () => {
+    console.log("App State Reset Triggered");
     setOriginalImage(null);
     setResults([]);
     setActiveResultId(null);

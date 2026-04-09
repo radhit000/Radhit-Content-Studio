@@ -158,24 +158,43 @@ export const authService = {
     await signOut(auth);
   },
 
-  // Listen for auth changes
+  // Listen for auth changes with stability check
   subscribeToAuth: (callback: (user: User | null, firebaseUser: FirebaseUser | null) => void) => {
+    let lastUserJson = '';
+    
     return onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
-            callback({ ...userDoc.data(), uid: firebaseUser.uid } as User, firebaseUser);
+            const userData = { ...userDoc.data(), uid: firebaseUser.uid } as User;
+            const userJson = JSON.stringify(userData);
+            
+            // Only trigger callback if the user data has actually changed
+            if (userJson !== lastUserJson) {
+              lastUserJson = userJson;
+              callback(userData, firebaseUser);
+            }
           } else {
-            callback(null, firebaseUser);
+            // New user or profile not yet created
+            if (lastUserJson !== 'null-with-firebase') {
+              lastUserJson = 'null-with-firebase';
+              callback(null, firebaseUser);
+            }
           }
         } catch (e) {
           console.error("Error fetching user profile:", e);
-          // Still callback with null user but valid firebaseUser so app can proceed to Login/Sync
-          callback(null, firebaseUser);
+          // If we have a firebaseUser but fetch fails, don't necessarily clear the app state
+          // unless we haven't loaded anything yet.
+          if (!lastUserJson) {
+            callback(null, firebaseUser);
+          }
         }
       } else {
-        callback(null, null);
+        if (lastUserJson !== 'null') {
+          lastUserJson = 'null';
+          callback(null, null);
+        }
       }
     });
   },
