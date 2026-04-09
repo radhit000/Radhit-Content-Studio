@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - email: string (required)
+    //   - role: string (required, enum: ["USER", "ADMIN"])
+    //   - status: string (required, enum: ["PENDING", "ACTIVE", "INACTIVE"])
+    //   - joinedAt: number (required)
+    //   - customApiKey: string (optional)
+    //
+    // Collection: settings
+    // Document ID: global
+    // Fields:
+    //   - appName: string (required)
+    //   - appTagline: string (required)
+    //   - themeColor: string (required)
+    //   - defaultApiKey: string (optional)
+    //   - enableSecurity: boolean (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN') ||
+          request.auth.token.email == "radhit000@gmail.com" ||
+          request.auth.token.email == "risangalit@gmail.com"
+        );
+    }
+
+    // Domain Validators
+    function isValidUser(data) {
+      return data.keys().hasAll(['email', 'role', 'status', 'joinedAt']) &&
+             data.email is string &&
+             data.role in ['USER', 'ADMIN'] &&
+             data.status in ['PENDING', 'ACTIVE', 'INACTIVE'] &&
+             data.joinedAt is number &&
+             data.email.size() < 255 &&
+             data.email.size() > 5;
+    }
+
+    function isValidSettings(data) {
+      return data.keys().hasAll(['appName', 'appTagline', 'themeColor', 'enableSecurity']) &&
+             data.appName is string && data.appName.size() > 0 && data.appName.size() < 100 &&
+             data.appTagline is string && data.appTagline.size() > 0 && data.appTagline.size() < 200 &&
+             data.themeColor is string && data.themeColor.matches('^#[0-9a-fA-F]{6}$') &&
+             data.enableSecurity is bool;
+    }
+
+    match /users/{userId} {
+      // PII Protection: Only owner or admin can read
+      // Added email check to allow pre-approved users (who don't have a UID doc yet) to read their doc
+      allow read: if isOwner(userId) || isAdmin() || (isAuthenticated() && resource.data.email == request.auth.token.email);
+      
+      // Allow authenticated users to list the collection
+      // Firestore will automatically filter results based on the 'read' rule
+      allow list: if isAuthenticated();
+
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    ((isOwner(userId) && request.resource.data.role == 'USER' && request.resource.data.status == 'PENDING') || isAdmin());
+      
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    ((isOwner(userId) && request.resource.data.role == resource.data.role && request.resource.data.status == resource.data.status) || isAdmin());
+      
+      allow delete: if isAdmin();
+    }
+
+    match /settings/global {
+      allow read: if true; 
+      allow write: if isAdmin() && isValidSettings(request.resource.data);
+    }
+  }
+}

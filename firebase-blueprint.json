@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user with role and status",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["USER", "ADMIN"] },
+        "status": { "type": "string", "enum": ["PENDING", "ACTIVE", "INACTIVE"] },
+        "joinedAt": { "type": "number" },
+        "customApiKey": { "type": "string" }
+      },
+      "required": ["email", "role", "status", "joinedAt"]
+    },
+    "AppSettings": {
+      "title": "AppSettings",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "appName": { "type": "string" },
+        "appTagline": { "type": "string" },
+        "themeColor": { "type": "string" },
+        "defaultApiKey": { "type": "string" },
+        "enableSecurity": { "type": "boolean" }
+      },
+      "required": ["appName", "appTagline", "themeColor", "enableSecurity"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "settings/global": {
+      "schema": "AppSettings",
+      "description": "Global app settings"
+    }
+  }
+}
