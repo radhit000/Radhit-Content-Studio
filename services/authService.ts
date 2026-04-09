@@ -4,6 +4,8 @@ import {
   signInWithPopup, 
   signOut, 
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   User as FirebaseUser
 } from "firebase/auth";
 import { 
@@ -81,8 +83,23 @@ export const authService = {
   loginWithGoogle: async (): Promise<User> => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    const firebaseUser = result.user;
-    
+    return authService.handleUserSync(result.user);
+  },
+
+  // Register with Email
+  registerWithEmail: async (email: string, password: string): Promise<User> => {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    return authService.handleUserSync(result.user);
+  },
+
+  // Login with Email
+  loginWithEmail: async (email: string, password: string): Promise<User> => {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    return authService.handleUserSync(result.user);
+  },
+
+  // Helper to sync Firebase User with Firestore User Profile
+  handleUserSync: async (firebaseUser: FirebaseUser): Promise<User> => {
     // 1. Check if user profile exists by UID
     let userDoc;
     try {

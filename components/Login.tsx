@@ -17,6 +17,9 @@ const DEFAULT_SETTINGS: AppSettings = {
 
 export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFAULT_SETTINGS }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' | 'info' } | null>(null);
 
   const handleGoogleLogin = async () => {
@@ -33,13 +36,50 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
       if (error.code === 'auth/the-service-is-currently-unavailable' || error.message?.includes('service-is-currently-unavailable')) {
         errorMsg = "Layanan Autentikasi Firebase belum aktif atau domain belum diizinkan. Silakan hubungi Admin untuk mengaktifkan 'Identity Toolkit API' dan menambahkan domain aplikasi ke 'Authorized Domains' di Firebase Console.";
       } else if (error.code === 'auth/unauthorized-domain') {
-        errorMsg = "Domain ini belum terdaftar di Authorized Domains Firebase. Silakan tambahkan domain ini di Firebase Console > Authentication > Settings.";
+        const currentDomain = window.location.hostname;
+        errorMsg = `Domain '${currentDomain}' belum terdaftar di Authorized Domains Firebase. Silakan tambahkan domain ini di Firebase Console > Authentication > Settings agar fitur Login dapat berfungsi.`;
       }
 
       setMessage({ 
         text: errorMsg, 
         type: 'error' 
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setMessage({ text: "Email dan password wajib diisi.", type: 'error' });
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage(null);
+    try {
+      const user = isRegisterMode 
+        ? await authService.registerWithEmail(email, password)
+        : await authService.loginWithEmail(email, password);
+      onLoginSuccess(user);
+    } catch (error: any) {
+      console.error(error);
+      let errorMsg = error.message || "Gagal melakukan autentikasi.";
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMsg = "Pengguna tidak ditemukan. Silakan daftar terlebih dahulu.";
+      } else if (error.code === 'auth/wrong-password') {
+        errorMsg = "Password salah.";
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMsg = "Email sudah digunakan oleh akun lain.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMsg = "Password terlalu lemah (minimal 6 karakter).";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMsg = "Format email tidak valid.";
+      }
+
+      setMessage({ text: errorMsg, type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +116,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
              </div>
           </div>
           
-          <h1 className="text-5xl font-black text-white mb-4 serif tracking-tighter leading-none">Selamat Datang</h1>
+          <h1 className="text-5xl font-black text-white mb-4 serif tracking-tighter leading-none">
+            {isRegisterMode ? 'Daftar Akun' : 'Selamat Datang'}
+          </h1>
           <p 
             className="elegant-caps max-w-[90%] tracking-[0.3em]"
             style={{ color: appSettings.themeColor }}
@@ -95,11 +137,56 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
           </div>
         )}
 
+        <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+          <div className="space-y-2">
+            <label className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Email</label>
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="email@contoh.com"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:border-teal-500 outline-none transition-all"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Password</label>
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:border-teal-500 outline-none transition-all"
+              required
+            />
+          </div>
+          <button 
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-4 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 elegant-caps text-xs"
+          >
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              isRegisterMode ? 'Daftar Sekarang' : 'Masuk'
+            )}
+          </button>
+        </form>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-zinc-800"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-zinc-950 px-2 text-zinc-500">Atau</span>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <button 
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full py-4 px-4 bg-white text-black font-medium rounded-full hover:bg-zinc-100 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 elegant-caps text-xs"
+            className="w-full py-4 px-4 bg-white text-black font-medium rounded-xl hover:bg-zinc-100 transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 elegant-caps text-xs"
           >
             {isLoading ? (
               <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
@@ -112,6 +199,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
               </svg>
             )}
             Sign in with Google
+          </button>
+        </div>
+
+        <div className="mt-8 text-center">
+          <button 
+            onClick={() => setIsRegisterMode(!isRegisterMode)}
+            className="text-xs text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
+          >
+            {isRegisterMode ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar'}
           </button>
         </div>
 

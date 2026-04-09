@@ -1090,7 +1090,12 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                {isCarouselMode 
                   ? `Membuat Slide ${Math.min(generationCount + 1, 4)} dari 4...` 
                   : (selectedFeature.id === 'prewed' || selectedFeature.id === 'pasfoto' || selectedFeature.id === 'faceswap' || selectedFeature.id === 'retouch')
-                    ? 'Analyzing Face DNA...'
+                    ? (
+                       <div className="flex flex-col items-start leading-tight">
+                          <span>Analyzing Face DNA...</span>
+                          <span className="text-[8px] opacity-60 font-mono uppercase tracking-tighter">High-Accuracy Studio Mode</span>
+                       </div>
+                     )
                     : 'Memproses Gambar...'}
             </div>
             

@@ -49,12 +49,15 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="ml-1">
-          <h1 
-            className="text-2xl font-bold tracking-tighter serif leading-none"
-            style={{ color: '#fff' }}
-          >
-            {appSettings.appName}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 
+              className="text-2xl font-bold tracking-tighter serif leading-none"
+              style={{ color: '#fff' }}
+            >
+              {appSettings.appName}
+            </h1>
+            <span className="bg-teal-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded-sm tracking-tighter">PRO</span>
+          </div>
           <p 
             className="elegant-caps opacity-90 mt-1"
             style={{ color: appSettings.themeColor }}

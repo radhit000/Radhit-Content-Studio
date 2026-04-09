@@ -246,17 +246,18 @@ export const editImageWithGemini = async (
   }
 
   const ai = new GoogleGenAI({ apiKey: finalKey });
-  const model = 'gemini-3.1-flash-image-preview';
+  const model = 'gemini-2.5-flash-image';
   const apiAspectRatio = getValidApiAspectRatio(aspectRatio);
 
   try {
     const fullPrompt = `
       [STRICT SYSTEM INSTRUCTION: FACE DNA PRESERVATION]
-      You are a High-Accuracy Photo Editor. 
+      You are a World-Class High-Accuracy Photo Editor and Studio Artist. 
       CRITICAL: You MUST preserve the subject's original facial features, bone structure, and unique identity 100% accurately. 
       DO NOT alter the face in any way. 
       Focus exclusively on modifying the background, clothing, and surrounding elements as requested.
-      Ensure the final output looks like a real, high-end studio photograph with perfect lighting and detail.
+      Ensure the final output looks like a real, high-end studio photograph with perfect 3-point lighting, cinematic depth of field, and ultra-sharp 8K-level detail.
+      Maintain natural skin textures and realistic shadows.
 
       [CONTEXT]
       ${systemInstruction || "Professional Studio Analysis."}
@@ -377,7 +378,7 @@ export const generateCompositeImage = async (
   }
 
   const ai = new GoogleGenAI({ apiKey: finalKey });
-  const model = 'gemini-3.1-flash-image-preview';
+  const model = 'gemini-2.5-flash-image';
   const apiAspectRatio = getValidApiAspectRatio(aspectRatio);
 
   try {
@@ -387,11 +388,12 @@ export const generateCompositeImage = async (
 
     const fullPrompt = `
       [STRICT SYSTEM INSTRUCTION: FACE DNA PRESERVATION]
-      You are a High-Accuracy Photo Editor. 
+      You are a World-Class High-Accuracy Photo Editor and Studio Artist. 
       CRITICAL: You MUST preserve the subject's original facial features, bone structure, and unique identity 100% accurately. 
       DO NOT alter the face in any way. 
       Focus exclusively on modifying the background, clothing, and surrounding elements as requested.
-      Ensure the final output looks like a real, high-end studio photograph with perfect lighting and detail.
+      Ensure the final output looks like a real, high-end studio photograph with perfect 3-point lighting, cinematic depth of field, and ultra-sharp 8K-level detail.
+      Maintain natural skin textures and realistic shadows.
 
       [CONTEXT]
       ${systemInstruction || "Create composite."}

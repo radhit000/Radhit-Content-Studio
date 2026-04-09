@@ -63,6 +63,20 @@ export const Controls: React.FC<ControlsProps> = ({
       {/* Configuration Panel (Always Visible now for Aspect Ratio) */}
       <div className="flex flex-col gap-4 bg-zinc-900 border border-zinc-800 p-4 rounded-xl shadow-sm">
            
+           {/* Face DNA Status Indicator */}
+           {(selectedFeature?.id === 'prewed' || selectedFeature?.id === 'pasfoto' || selectedFeature?.id === 'faceswap' || selectedFeature?.id === 'retouch') && (
+             <div className="flex items-center justify-between bg-teal-500/5 border border-teal-500/20 px-3 py-2 rounded-lg mb-2">
+                <div className="flex items-center gap-2">
+                   <div className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                   </div>
+                   <span className="text-[10px] font-bold text-teal-400 uppercase tracking-widest">Face DNA Lock Active</span>
+                </div>
+                <div className="text-[9px] text-teal-500/60 italic">High-Accuracy Mode</div>
+             </div>
+           )}
+
            {/* Aspect Ratio Selector */}
            <div className="flex flex-col gap-2">
               <span className="text-xs text-zinc-400 font-medium">

@@ -142,6 +142,9 @@ export const ApiKeySettings: React.FC<ApiKeySettingsProps> = ({
                     </button>
                 )}
             </div>
+            <p className="text-[10px] text-zinc-500 italic">
+              * Aplikasi ini dioptimalkan untuk <span className="text-teal-400 font-bold">Gemini 2.5 Flash</span>. Setiap user menggunakan API Key masing-masing untuk privasi dan kuota mandiri.
+            </p>
             {apiKey && detectedProvider === 'OpenRouter' && (
                 <p className="text-[10px] text-purple-400">
                     * Pastikan akun OpenRouter memiliki credit/balance yang cukup.
