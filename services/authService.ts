@@ -147,7 +147,9 @@ export const authService = {
     try {
       await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
     } catch (e) {
-      handleFirestoreError(e, OperationType.WRITE, `users/${firebaseUser.uid}`);
+      console.error("Failed to create user profile in Firestore:", e);
+      // We still return the newUser object so the app can function in-memory
+      // even if the database write failed (e.g. permission issues)
     }
     return newUser;
   },
@@ -168,7 +170,9 @@ export const authService = {
             callback(null, firebaseUser);
           }
         } catch (e) {
-          handleFirestoreError(e, OperationType.GET, `users/${firebaseUser.uid}`);
+          console.error("Error fetching user profile:", e);
+          // Still callback with null user but valid firebaseUser so app can proceed to Login/Sync
+          callback(null, firebaseUser);
         }
       } else {
         callback(null, null);

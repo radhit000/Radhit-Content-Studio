@@ -61,9 +61,18 @@ const App: React.FC = () => {
   useEffect(() => {
     // Subscribe to Auth
     const unsubscribeAuth = authService.subscribeToAuth((user) => {
+      console.log("Auth State Changed:", user ? "User Logged In" : "No User");
       setCurrentUser(user);
       setIsAuthReady(true);
     });
+
+    // Fallback: If auth doesn't respond in 5 seconds, force ready
+    const timeout = setTimeout(() => {
+      if (!isAuthReady) {
+        console.warn("Auth subscription timed out, forcing ready state.");
+        setIsAuthReady(true);
+      }
+    }, 5000);
 
     // Subscribe to Settings
     const unsubscribeSettings = settingsService.subscribeToSettings((settings) => {
@@ -73,6 +82,7 @@ const App: React.FC = () => {
     return () => {
       unsubscribeAuth();
       unsubscribeSettings();
+      clearTimeout(timeout);
     };
   }, []);
 
