@@ -38,14 +38,14 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'join', 
         label: 'Gabung Foto', 
         icon: Icons.Join, 
-        systemPrompt: "ROLE: Professional Photo Compositor. TASK: Create a single, seamless composition using the provided input images. REQUIREMENTS: 1. Harmonize lighting, shadows, and perspective across all elements. 2. If 'Auto' prompt is used, creatively determine the best way to combine them (e.g., collage, scene integration, or fantasy blend). 3. Output a high-quality, photorealistic result.",
-        placeholder: "Instruksi penggabungan (atau klik Prompt Otomatis Ajaib)...",
+        systemPrompt: "ROLE: Professional Photo Compositor & VFX Artist. TASK: Add new individuals into an existing group photo seamlessly. INPUTS: Image 1 is the BASE GROUP PHOTO. Subsequent images are FACE/HEADSHOTS of people to be added. REQUIREMENTS: 1. BODY GENERATION: For each added person, generate a full body, clothing, and pose that matches the group's context. 2. FASHION MATCHING: Analyze the clothing style of people in the base photo (e.g., formal, casual, traditional) and dress the new individuals accordingly. 3. LIGHTING & PERSPECTIVE: Match the lighting direction, shadows, color temperature, and camera angle of the base photo perfectly. 4. PLACEMENT: Intelligently place the new individuals in realistic positions (e.g., standing in a gap, sitting next to others) without overlapping awkwardly. 5. IDENTITY PRESERVATION: Strictly preserve the facial features from the headshot images. OUTPUT: A high-quality, photorealistic single frame where everyone looks like they were part of the original photoshoot.",
+        placeholder: "Instruksi tambahan (misal: letakkan orang baru di tengah)...",
         allowMultiUpload: true,
         quickPrompts: [
-            "Gabungkan menjadi adegan fantasi", 
-            "Buat kolase modern", 
-            "Satukan dengan halus", 
-            "Tempatkan objek ke latar belakang"
+            "Tambahkan orang baru ke foto grup ini", 
+            "Gabungkan dengan busana yang serasi", 
+            "Sesuaikan pose dengan suasana grup", 
+            "Buat komposisi keluarga lengkap"
         ]
       },
       { 

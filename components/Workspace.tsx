@@ -401,8 +401,12 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       alert("Untuk Face Swap, Anda wajib mengunggah 2 foto: 1. Wajah Sumber, 2. Foto Target.");
       return;
     }
+    if (isJoinMode && uploadedImages.length < 2) {
+      alert("Mohon unggah minimal 2 foto: 1. Foto Grup Utama, 2. Foto Orang yang ingin ditambahkan.");
+      return;
+    }
     // Carousel allows 0 or more
-    if (!isFaceSwap && !isCarousel && uploadedImages.length < 2) {
+    if (!isFaceSwap && !isCarousel && !isJoinMode && uploadedImages.length < 2) {
       alert("Mohon unggah minimal 2 foto untuk digabungkan.");
       return;
     }
@@ -431,6 +435,15 @@ export const Workspace: React.FC<WorkspaceProps> = ({
          FACE SWAP OPERATION:
          Base: Image 2. Face Source: Image 1.
          INSTRUCTION: Swap face. Preserve Face DNA and Base Image details.
+       `.trim();
+    } else if (isJoinMode) {
+       instruction = selectedFeature?.systemPrompt;
+       finalPrompt = `
+         JOIN PHOTO OPERATION:
+         Base Group: Image 1.
+         People to Add: ${uploadedImages.slice(1).map((_, idx) => `Image ${idx + 2}`).join(', ')}.
+         USER INSTRUCTION: ${prompt}
+         TASK: Seamlessly integrate the people from headshots into the group photo. Generate matching bodies, fashion, and lighting.
        `.trim();
     }
 
@@ -630,6 +643,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     }
   };
 
+  const isJoinMode = selectedFeature?.id === 'join';
   const isMultiMode = selectedFeature?.allowMultiUpload;
   const isExpandMode = selectedFeature?.id === 'expand';
   const isEditMode = selectedFeature?.id === 'edit';
@@ -641,6 +655,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const isPrewedMode = selectedFeature?.id === 'prewed';
   const isPasFotoMode = selectedFeature?.id === 'pasfoto';
   const isLogoMode = selectedFeature?.id === 'logo';
+  
+  const usesFaceDNA = ['faceswap', 'prewed', 'pasfoto', 'restore', 'artist', 'model', 'join', 'baby', 'kids', 'maternity'].includes(selectedFeature?.id || '');
   
   // Decide which results to show
   // If the feature is in VARIATION_IDS, use localCompositeResults (grid view)
@@ -742,6 +758,76 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         {/* Upload Area */}
         <div className="flex flex-col gap-4">
            
+           {/* Custom Join Photo UI */}
+           {isJoinMode && (
+             <div className="flex flex-col gap-6">
+                 {/* Concept Explanation Card */}
+                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex flex-col gap-3">
+                    <div className="flex items-center gap-2 text-blue-400">
+                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+                       </svg>
+                       <span className="text-sm font-bold">Cara Kerja Gabung Foto</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className="flex flex-col gap-1">
+                          <span className="text-[11px] font-bold text-blue-300 uppercase">1. Foto Utama (Latar)</span>
+                          <p className="text-[10px] text-zinc-400 leading-relaxed">Gunakan foto grup atau pemandangan. Ini adalah "wadah" tempat orang baru akan diletakkan.</p>
+                       </div>
+                       <div className="flex flex-col gap-1">
+                          <span className="text-[11px] font-bold text-purple-300 uppercase">2. Subjek Baru (Wajah)</span>
+                          <p className="text-[10px] text-zinc-400 leading-relaxed">Cukup upload pas foto wajah. AI akan otomatis membuatkan badan, baju, dan pose yang serasi dengan foto utama.</p>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="flex flex-col gap-2">
+                   <span className="text-xs font-bold text-blue-400 uppercase flex items-center gap-2">
+                     <span className="w-4 h-4 rounded-full bg-blue-500 text-black flex items-center justify-center text-[10px]">1</span>
+                     Foto Utama (Grup/Latar)
+                   </span>
+                   <ImageUploader 
+                     onImageSelected={(b64, mime) => handleSpecificImageUpload(0, b64, mime)} 
+                     currentImage={uploadedImages[0]?.base64 ? `data:${uploadedImages[0].mimeType};base64,${uploadedImages[0].base64}` : null}
+                     label="Upload Foto Grup Utama"
+                   />
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                   <span className="text-xs font-bold text-purple-400 uppercase flex items-center gap-2">
+                     <span className="w-4 h-4 rounded-full bg-purple-500 text-black flex items-center justify-center text-[10px]">2</span>
+                     Subjek Baru (Cukup Wajah)
+                   </span>
+                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                     {[1, 2, 3, 4].map((idx) => (
+                       <div key={idx} className="relative group">
+                         <ImageUploader 
+                           onImageSelected={(b64, mime) => handleSpecificImageUpload(idx, b64, mime)} 
+                           currentImage={uploadedImages[idx]?.base64 ? `data:${uploadedImages[idx].mimeType};base64,${uploadedImages[idx].base64}` : null}
+                           label={`Subjek ${idx}`}
+                           compact
+                         />
+                         {uploadedImages[idx]?.base64 && (
+                           <button 
+                             onClick={() => removeImage(idx)}
+                             className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                           >
+                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                               <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                             </svg>
+                           </button>
+                         )}
+                       </div>
+                     ))}
+                   </div>
+                    <div className="flex items-center gap-2 bg-zinc-800/50 p-2 rounded-lg border border-zinc-700/50">
+                       <svg className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                       <p className="text-[10px] text-zinc-400">AI akan menganalisa pose & fashion agar realistis.</p>
+                    </div>
+                </div>
+             </div>
+           )}
+
            {/* Custom Face Swap UI */}
            {isFaceSwap && (
              <div className="flex flex-col gap-4">
@@ -876,7 +962,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
            )}
 
            {/* Generic Multi Upload (Join/Carousel) */}
-           {((isMultiMode && !isFaceSwap && !isProductMode && !isPrewedMode) || (isCarouselMode && uploadedImages.length > 0)) && (
+           {((isMultiMode && !isFaceSwap && !isProductMode && !isPrewedMode && !isJoinMode) || (isCarouselMode && uploadedImages.length > 0)) && (
              <div className="flex flex-col gap-3">
                <span className="text-xs font-bold text-zinc-500 uppercase">Foto Masukan ({uploadedImages.length}/5)</span>
                <div className="grid grid-cols-3 gap-2">
@@ -942,6 +1028,20 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
         {/* --- CONTROLS --- */}
         
+        {usesFaceDNA && (
+          <div className="bg-teal-900/20 border border-teal-500/30 p-3 rounded-xl flex items-center gap-3 animate-pulse">
+            <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-black">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3A5.25 5.25 0 0012 1.5zm-3.75 5.25a3.75 3.75 0 117.5 0v3h-7.5v-3z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-teal-400 uppercase tracking-wider">Face DNA Lock Active</p>
+              <p className="text-[9px] text-teal-200/70 leading-tight">Identitas wajah akan dijaga 100% akurat sesuai foto asli.</p>
+            </div>
+          </div>
+        )}
+
         {isMascotMode && (
             <div className="flex flex-col gap-4 bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
                  <h3 className="text-xs font-bold text-zinc-400 uppercase">Detail Karakter</h3>
@@ -994,9 +1094,12 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     <select value={pasFotoAttire} onChange={(e) => setPasFotoAttire(e.target.value)} className="w-full bg-zinc-800 text-white text-sm p-2 rounded-lg border border-zinc-700 outline-none">
                         <option value="Kemeja Putih">Kemeja Putih</option>
                         <option value="Jas Hitam & Kemeja Putih">Jas Hitam & Kemeja Putih</option>
+                        <option value="Jas Hitam & Dasi">Jas Hitam & Dasi</option>
                         <option value="Batik Formal">Batik Formal</option>
+                        <option value="Kebaya Modern">Kebaya Modern</option>
                         <option value="Blazer Wanita">Blazer Wanita</option>
                         <option value="Seragam Sekolah">Seragam Sekolah</option>
+                        <option value="Pakaian Dinas (PNS/TNI/Polri)">Pakaian Dinas (PNS/TNI/Polri)</option>
                     </select>
                  </div>
             </div>
