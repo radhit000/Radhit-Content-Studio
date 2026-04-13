@@ -23,7 +23,7 @@ interface WorkspaceProps {
 const VARIATION_IDS = [
   'restore', 'miniature', 'artist', 'product', 'fashion', 'mockup', 'banner',
   'pov', 'prewed', 'fitting', 'model', 'baby', 'kids', 'haji', 'pasfoto',
-  'maternity', 'home', 'sketch', 'art', 'logo', 'mascot', 'retouch', 'barber', 'tidy', 'join', 'vacation'
+  'maternity', 'home', 'sketch', 'art', 'logo', 'mascot', 'retouch', 'barber', 'tidy', 'join', 'vacation', 'animation'
 ];
 
 export const Workspace: React.FC<WorkspaceProps> = ({
@@ -69,6 +69,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [vacationCountry, setVacationCountry] = useState('Pilih Negara');
   const [vacationWorship, setVacationWorship] = useState('Pilih Ibadah');
 
+  // Animation Feature State
+  const [animationStyle, setAnimationStyle] = useState('Pixar 3D Style');
+
   // Expand Feature State
   const [expandSettings, setExpandSettings] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
   const [imgDimensions, setImgDimensions] = useState<{w: number, h: number} | null>(null);
@@ -98,6 +101,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     setPasFotoAttire('Kemeja Putih');
     setVacationCountry('Pilih Negara');
     setVacationWorship('Pilih Ibadah');
+    setAnimationStyle('Pixar 3D Style');
     setExpandSettings({ top: 0, right: 0, bottom: 0, left: 0 });
     clearCanvas();
     setLocalCompositeResults([]);
@@ -372,6 +376,20 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     - EXCLUSION: DO NOT generate Islamic settings (Mosques, etc).
                     - Adjust attire and lighting to match the chosen environment.
                     - High-end travel photography style.
+                `.trim();
+            }
+            else if (featureId === 'animation') {
+                finalPrompt = `
+                    [VARIATION ${i+1}]
+                    [TASK]: ANIMATION CHARACTER TRANSFORMATION.
+                    [STYLE]: ${animationStyle}
+                    [STRICT INSTRUCTIONS]:
+                    - Lock and preserve the subject's Face DNA 100%.
+                    - Transform the subject into a character in the style of '${animationStyle}'.
+                    - Maintain recognizable features while applying the artistic stylization.
+                    - Use high-end 3D rendering or 2D artistic textures as appropriate.
+                    - Cinematic lighting and professional composition.
+                    ${userPrompt ? `[USER CONCEPT]: ${userPrompt}` : ''}
                 `.trim();
             }
             else if (featureId === 'pasfoto') {
@@ -720,6 +738,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const isPrewedMode = selectedFeature?.id === 'prewed';
   const isPasFotoMode = selectedFeature?.id === 'pasfoto';
   const isVacationMode = selectedFeature?.id === 'vacation';
+  const isAnimationMode = selectedFeature?.id === 'animation';
   const isLogoMode = selectedFeature?.id === 'logo';
   
   const usesFaceDNA = ['faceswap', 'prewed', 'pasfoto', 'restore', 'artist', 'model', 'join', 'baby', 'kids', 'maternity'].includes(selectedFeature?.id || '');
@@ -1015,6 +1034,41 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 </div>
              </div>
            )}
+
+            {/* Custom Animation UI */}
+            {isAnimationMode && (
+               <div className="flex flex-col gap-6">
+                 <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner">
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                       Pilih Gaya Animasi
+                     </label>
+                     <div className="relative">
+                       <select 
+                         value={animationStyle}
+                         onChange={(e) => setAnimationStyle(e.target.value)}
+                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                       >
+                         <option>Pixar 3D Style</option>
+                         <option>Classic Disney (Hand-drawn)</option>
+                         <option>Cyberpunk 2077 (Neon & Tech)</option>
+                         <option>Studio Ghibli (Anime)</option>
+                         <option>Spider-Verse (Comic Style)</option>
+                         <option>Valorant / Arcane (Game Art)</option>
+                         <option>LEGO Character</option>
+                         <option>Chibi / Kawaii Style</option>
+                         <option>Tim Burton (Gothic Style)</option>
+                         <option>Retro 8-bit Pixel Art</option>
+                       </select>
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            )}
 
             {/* Custom Vacation UI */}
             {isVacationMode && (
