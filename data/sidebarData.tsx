@@ -339,17 +339,21 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
       },
       { 
         id: 'barber', 
-        label: 'Barbershop', 
+        label: 'Barbershop & Salon', 
         icon: Icons.Scissor, 
-        description: 'Coba berbagai model rambut atau jenggot baru secara instan untuk melihat gaya yang paling cocok.',
+        description: 'Coba berbagai model rambut pria (Barbershop) atau wanita (Salon) secara instan untuk melihat gaya yang paling cocok.',
         exampleImage: 'https://picsum.photos/seed/hair-style-barber/400/300',
-        systemPrompt: "ROLE: Professional Barber/Hairstylist. TASK: Change the subject's hairstyle or beard. REQUIREMENTS: 1. Realistic hair rendering (strands, shine, volume). 2. Fit the new hair to the head shape and hairline naturally. 3. Match the hair color to the eyebrows/roots unless specified.",
-        placeholder: "Model rambut baru?",
+        systemPrompt: "ROLE: Professional Barber & Hair Stylist. TASK: Change the subject's hairstyle or beard. REQUIREMENTS: 1. Realistic hair rendering (strands, shine, volume). 2. Fit the new hair to the head shape and hairline naturally. 3. Match the hair color to the eyebrows/roots unless specified. 4. GENDER SPECIFIC: If 'Pria' is selected, focus on barbershop styles (fade, pompadour, beard). If 'Wanita' is selected, focus on salon styles (layers, bob, bangs, long waves). 5. IDENTITY: Strictly preserve the subject's facial features and identity.",
+        placeholder: "Pilih gender dan model rambut...",
         quickPrompts: [
-            "Potongan Fade Modern",
-            "Rambut Bergelombang Panjang",
-            "Botak dengan Jenggot",
-            "Cat Rambut Abu-abu Perak"
+            "Pria: Fade Modern & Jenggot",
+            "Pria: Undercut Klasik",
+            "Pria: Buzz Cut",
+            "Pria: Man Bun",
+            "Wanita: Long Layered Waves",
+            "Wanita: Bob Cut Modern",
+            "Wanita: Pixie Cut",
+            "Wanita: Rambut Berponi (Bangs)"
         ]
       },
       { 

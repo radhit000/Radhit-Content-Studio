@@ -72,6 +72,10 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   // Animation Feature State
   const [animationStyle, setAnimationStyle] = useState('Pixar 3D Style');
 
+  // Barbershop Feature States
+  const [barberGender, setBarberGender] = useState('Pria');
+  const [barberStyle, setBarberStyle] = useState('Pilih Model');
+
   // Expand Feature State
   const [expandSettings, setExpandSettings] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
   const [imgDimensions, setImgDimensions] = useState<{w: number, h: number} | null>(null);
@@ -102,6 +106,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     setVacationCountry('Pilih Negara');
     setVacationWorship('Pilih Ibadah');
     setAnimationStyle('Pixar 3D Style');
+    setBarberGender('Pria');
+    setBarberStyle('Pilih Model');
     setExpandSettings({ top: 0, right: 0, bottom: 0, left: 0 });
     clearCanvas();
     setLocalCompositeResults([]);
@@ -390,6 +396,22 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     - Use high-end 3D rendering or 2D artistic textures as appropriate.
                     - Cinematic lighting and professional composition.
                     ${userPrompt ? `[USER CONCEPT]: ${userPrompt}` : ''}
+                `.trim();
+            }
+            else if (featureId === 'barber') {
+                finalPrompt = `
+                    [VARIATION ${i+1}]
+                    [TASK]: HAIR & BEARD TRANSFORMATION.
+                    [GENDER]: ${barberGender}
+                    [HAIRSTYLE]: ${barberStyle !== 'Pilih Model' ? barberStyle : "Modern Stylish Cut"}
+                    [USER CONCEPT]: ${userPrompt}
+                    
+                    [STRICT INSTRUCTIONS]:
+                    - Lock and preserve the subject's Face DNA 100%.
+                    - Apply the hairstyle '${barberStyle}' suitable for a ${barberGender}.
+                    - Ensure realistic hair texture, volume, and natural integration with the hairline.
+                    - If 'Pria' and beard is requested, ensure realistic facial hair rendering.
+                    - Maintain the subject's original identity while changing only the hair/beard.
                 `.trim();
             }
             else if (featureId === 'pasfoto') {
@@ -739,6 +761,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const isPasFotoMode = selectedFeature?.id === 'pasfoto';
   const isVacationMode = selectedFeature?.id === 'vacation';
   const isAnimationMode = selectedFeature?.id === 'animation';
+  const isBarberMode = selectedFeature?.id === 'barber';
   const isLogoMode = selectedFeature?.id === 'logo';
   
   const usesFaceDNA = ['faceswap', 'prewed', 'pasfoto', 'restore', 'artist', 'model', 'join', 'baby', 'kids', 'maternity'].includes(selectedFeature?.id || '');
@@ -1034,6 +1057,84 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 </div>
              </div>
            )}
+
+            {/* Custom Barbershop UI */}
+            {isBarberMode && (
+               <div className="flex flex-col gap-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner">
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                       Pilih Gender
+                     </label>
+                     <div className="flex gap-2">
+                       {['Pria', 'Wanita'].map((g) => (
+                         <button
+                           key={g}
+                           onClick={() => {
+                             setBarberGender(g);
+                             setBarberStyle('Pilih Model');
+                           }}
+                           className={`flex-1 py-3 rounded-2xl text-xs font-bold transition-all border ${
+                             barberGender === g 
+                               ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.2)]' 
+                               : 'bg-black/40 border-zinc-800 text-zinc-500 hover:border-zinc-700'
+                           }`}
+                         >
+                           {g}
+                         </button>
+                       ))}
+                     </div>
+                   </div>
+
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                       Pilih Model Rambut ({barberGender})
+                     </label>
+                     <div className="relative">
+                       <select 
+                         value={barberStyle}
+                         onChange={(e) => setBarberStyle(e.target.value)}
+                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                       >
+                         <option>Pilih Model</option>
+                         {barberGender === 'Pria' ? (
+                           <>
+                             <option>Fade Modern (Low/Mid/High)</option>
+                             <option>Undercut Klasik</option>
+                             <option>Buzz Cut (Cepak)</option>
+                             <option>Pompadour</option>
+                             <option>Side Part (Belah Samping)</option>
+                             <option>Man Bun / Top Knot</option>
+                             <option>Mullet Modern</option>
+                             <option>Botak Licin (Clean Shave)</option>
+                             <option>Gaya Rambut Bergelombang</option>
+                             <option>Gaya Rambut Keriting (Perm)</option>
+                           </>
+                         ) : (
+                           <>
+                             <option>Long Layered Waves</option>
+                             <option>Bob Cut Modern (Short/Long)</option>
+                             <option>Pixie Cut (Pendek Maskulin)</option>
+                             <option>Rambut Berponi (Bangs)</option>
+                             <option>Shaggy Cut</option>
+                             <option>Wolf Cut</option>
+                             <option>Gaya Rambut Lurus Panjang</option>
+                             <option>Gaya Rambut Keriting Alami</option>
+                             <option>High Ponytail</option>
+                             <option>French Braid (Kepang)</option>
+                           </>
+                         )}
+                       </select>
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            )}
 
             {/* Custom Animation UI */}
             {isAnimationMode && (
