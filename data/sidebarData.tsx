@@ -27,7 +27,8 @@ const Icons = {
   Restore: <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
   Star: <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>,
   Moon: <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>,
-  Camera: <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+  Camera: <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+  Plane: <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
 };
 
 export const MENU_CATEGORIES: FeatureCategory[] = [
@@ -273,6 +274,25 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
             "Kemewahan Hotel Bintang 5",
             "Padang Pasir Eksotis",
             "Nuansa Salju Musim Dinign"
+        ]
+      },
+      { 
+        id: 'vacation', 
+        label: 'Vacation & Ibadah', 
+        icon: Icons.Plane, 
+        description: 'Ubah foto Anda ke momen liburan impian atau suasana ibadah yang khidmat di berbagai tempat suci dunia (Selain Islam).',
+        exampleImage: 'https://picsum.photos/seed/travel-worship/400/300',
+        systemPrompt: "ROLE: World Travel & Religious Photographer. TASK: Transform the subject into a specific vacation or religious worship setting. REQUIREMENTS: 1. VACATION: Generate breathtaking landscapes (Swiss Alps, Maldives, NYC, African Safari, Japan, etc.) with realistic lighting and atmosphere. 2. WORSHIP (NON-ISLAMIC): Generate sacred and peaceful religious environments for other faiths (Cathedral, Church, Buddhist Temple, Hindu Temple, Vihara, Pagoda, Shrine, Synagogue) with appropriate cultural details and respectful lighting. 3. ATTIRE: Adjust the subject's clothing to match the setting (e.g., winter gear for Swiss, modest clothing for temples, casual for beach). 4. IDENTITY: Strictly preserve the subject's facial features and identity. 5. QUALITY: Photorealistic, high-end travel magazine quality. 6. EXCLUSION: Do not generate Islamic settings (Mosques, Kaaba, etc.) as they are handled by a separate tool.",
+        placeholder: "Jelaskan detail tambahan liburan atau ibadah yang diinginkan...",
+        quickPrompts: [
+            "Liburan Salju di Swiss",
+            "Pantai Maladewa",
+            "Ibadah di Gereja Katedral",
+            "Kuil Kuno di Bali",
+            "Suasana Vihara Tenang",
+            "City Tour New York",
+            "Safari di Afrika",
+            "Momen Natal di Vatikan"
         ]
       },
       { 

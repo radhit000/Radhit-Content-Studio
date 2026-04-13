@@ -23,7 +23,7 @@ interface WorkspaceProps {
 const VARIATION_IDS = [
   'restore', 'miniature', 'artist', 'product', 'fashion', 'mockup', 'banner',
   'pov', 'prewed', 'fitting', 'model', 'baby', 'kids', 'haji', 'pasfoto',
-  'maternity', 'home', 'sketch', 'art', 'logo', 'mascot', 'retouch', 'barber', 'tidy', 'join'
+  'maternity', 'home', 'sketch', 'art', 'logo', 'mascot', 'retouch', 'barber', 'tidy', 'join', 'vacation'
 ];
 
 export const Workspace: React.FC<WorkspaceProps> = ({
@@ -65,6 +65,10 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [pasFotoColor, setPasFotoColor] = useState('Merah');
   const [pasFotoAttire, setPasFotoAttire] = useState('Kemeja Putih');
 
+  // Vacation Feature States
+  const [vacationCountry, setVacationCountry] = useState('Pilih Negara');
+  const [vacationWorship, setVacationWorship] = useState('Pilih Ibadah');
+
   // Expand Feature State
   const [expandSettings, setExpandSettings] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
   const [imgDimensions, setImgDimensions] = useState<{w: number, h: number} | null>(null);
@@ -92,6 +96,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     setWeddingType('Pre-wedding');
     setPasFotoColor('Merah');
     setPasFotoAttire('Kemeja Putih');
+    setVacationCountry('Pilih Negara');
+    setVacationWorship('Pilih Ibadah');
     setExpandSettings({ top: 0, right: 0, bottom: 0, left: 0 });
     clearCanvas();
     setLocalCompositeResults([]);
@@ -349,6 +355,23 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     - High-end commercial photography style.
                     - Sharp details, realistic textures, and premium aesthetic.
                     - [VARIATION ${i+1}]: Apply a unique artistic composition or camera angle.
+                `.trim();
+            }
+            else if (featureId === 'vacation') {
+                finalPrompt = `
+                    [VARIATION ${i+1}]
+                    [TASK]: VACATION & WORSHIP PHOTO TRANSFORMATION.
+                    [COUNTRY/LOCATION]: ${vacationCountry !== 'Pilih Negara' ? vacationCountry : "Global Famous Destination"}
+                    [WORSHIP SETTING]: ${vacationWorship !== 'Pilih Ibadah' ? vacationWorship : "Peaceful Sacred Setting"}
+                    [USER CONCEPT]: ${userPrompt}
+                    
+                    [STRICT INSTRUCTIONS]:
+                    - Lock and preserve the subject's Face DNA 100%.
+                    - If [COUNTRY] is selected, use iconic landmarks or atmosphere of that country.
+                    - If [WORSHIP] is selected, place the subject in a respectful, peaceful, and sacred setting of that faith.
+                    - EXCLUSION: DO NOT generate Islamic settings (Mosques, etc).
+                    - Adjust attire and lighting to match the chosen environment.
+                    - High-end travel photography style.
                 `.trim();
             }
             else if (featureId === 'pasfoto') {
@@ -696,6 +719,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const isCarouselMode = selectedFeature?.id === 'carousel';
   const isPrewedMode = selectedFeature?.id === 'prewed';
   const isPasFotoMode = selectedFeature?.id === 'pasfoto';
+  const isVacationMode = selectedFeature?.id === 'vacation';
   const isLogoMode = selectedFeature?.id === 'logo';
   
   const usesFaceDNA = ['faceswap', 'prewed', 'pasfoto', 'restore', 'artist', 'model', 'join', 'baby', 'kids', 'maternity'].includes(selectedFeature?.id || '');
@@ -991,6 +1015,69 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 </div>
              </div>
            )}
+
+            {/* Custom Vacation UI */}
+            {isVacationMode && (
+               <div className="flex flex-col gap-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner">
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                       Destinasi Liburan (Famous Countries)
+                     </label>
+                     <div className="relative">
+                       <select 
+                         value={vacationCountry}
+                         onChange={(e) => setVacationCountry(e.target.value)}
+                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                       >
+                         <option>Pilih Negara</option>
+                         <option>Swiss (Alpen & Salju)</option>
+                         <option>Jepang (Sakura & Kyoto)</option>
+                         <option>Prancis (Paris & Menara Eiffel)</option>
+                         <option>Italia (Venesia & Roma)</option>
+                         <option>Maladewa (Pantai & Resort)</option>
+                         <option>Amerika Serikat (NYC & Grand Canyon)</option>
+                         <option>Inggris (London & Big Ben)</option>
+                         <option>Korea Selatan (Seoul & Hanok)</option>
+                         <option>Australia (Sydney & Outback)</option>
+                         <option>Belanda (Kincir Angin & Tulip)</option>
+                       </select>
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                       </div>
+                     </div>
+                   </div>
+
+                   <div className="space-y-3">
+                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                       Suasana Ibadah (Non-Islam)
+                     </label>
+                     <div className="relative">
+                       <select 
+                         value={vacationWorship}
+                         onChange={(e) => setVacationWorship(e.target.value)}
+                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                       >
+                         <option>Pilih Ibadah</option>
+                         <option>Kristen (Gereja Katedral/Vatikan)</option>
+                         <option>Katolik (Misa/Kapel Klasik)</option>
+                         <option>Buddha (Kuil/Vihara/Pagoda)</option>
+                         <option>Hindu (Pura Bali/Kuil India)</option>
+                         <option>Konghucu (Klenteng/Temple)</option>
+                         <option>Shinto (Kuil Jepang/Torii Gate)</option>
+                         <option>Sikh (Gurdwara)</option>
+                         <option>Yahudi (Sinagoga)</option>
+                       </select>
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            )}
 
            {/* Custom Product UI */}
            {isProductMode && (
