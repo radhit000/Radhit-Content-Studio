@@ -31,6 +31,8 @@ export interface FeatureItem {
   placeholder: string;
   quickPrompts?: string[];
   allowMultiUpload?: boolean; // New: Support for Join/Composite features
+  description?: string; // New: Short explanation of the tool
+  exampleImage?: string; // New: URL to an example result
 }
 
 export interface FeatureCategory {

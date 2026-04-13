@@ -23,7 +23,7 @@ interface WorkspaceProps {
 const VARIATION_IDS = [
   'restore', 'miniature', 'artist', 'product', 'fashion', 'mockup', 'banner',
   'pov', 'prewed', 'fitting', 'model', 'baby', 'kids', 'haji', 'pasfoto',
-  'maternity', 'home', 'sketch', 'art', 'logo', 'mascot', 'retouch', 'barber', 'tidy'
+  'maternity', 'home', 'sketch', 'art', 'logo', 'mascot', 'retouch', 'barber', 'tidy', 'join'
 ];
 
 export const Workspace: React.FC<WorkspaceProps> = ({
@@ -44,7 +44,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [generationCount, setGenerationCount] = useState(0);
 
   // Feature specific states
-  const [useModel, setUseModel] = useState(false); // For Product Photo
+  const [productScene, setProductScene] = useState('Studio Minimalist');
+  const [productLighting, setProductLighting] = useState('Softbox Studio');
+  const [modelAction, setModelAction] = useState('Memegang Produk');
   
   // Mascot Feature States
   const [mascotType, setMascotType] = useState('Kartun');
@@ -81,7 +83,6 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       setUploadedImages([]);
     }
     // Reset states
-    setUseModel(false);
     setMascotType('Kartun');
     setBrandColor('');
     setBannerTexts({ main: '', support: '', footer: '' });
@@ -139,7 +140,15 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   };
 
   const removeImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setUploadedImages(prev => {
+      // For specific modes that rely on indices, we clear the slot instead of filtering
+      if (isFaceSwap || isProductMode || isPrewedMode || isJoinMode) {
+        const next = [...prev];
+        next[index] = { base64: '', mimeType: '' };
+        return next;
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   // --- DRAWING LOGIC (EDIT MODE) ---
@@ -226,8 +235,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     }
 
     // Validation
-    if (featureId === 'product' && useModel && uploadedImages.length < 2) {
-       alert("Mode 'Dengan Model' memerlukan 2 foto.");
+    if (featureId === 'product' && !uploadedImages[0]?.base64) {
+       alert("Mohon unggah foto produk utama.");
        setInternalProcessing(false);
        return;
     }
@@ -239,7 +248,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     // Allow null input for features like Mascot/Logo/Banner if they can generate from text
     
     // Dynamic loop count based on feature
-    const loopCount = (featureId === 'prewed' || featureId === 'product' || featureId === 'pasfoto' || featureId === 'mascot' || featureId === 'banner') ? 4 : 2;
+    const loopCount = (featureId === 'prewed' || featureId === 'product' || featureId === 'pasfoto' || featureId === 'mascot' || featureId === 'banner' || featureId === 'join') ? 4 : 2;
     let completedCount = 0;
     const errors: string[] = [];
     
@@ -303,11 +312,44 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     - Ensure professional studio lighting and high-end photography quality.
                 `.trim();
             }
+            else if (featureId === 'join') {
+                finalPrompt = `
+                    [VARIATION ${i+1}]
+                    [TASK]: SMART JOIN / COMPOSITE.
+                    [BASE PHOTO]: Image 1.
+                    [SUBJECTS TO ADD]: ${uploadedImages.slice(1).map((_, idx) => `Image ${idx + 2}`).join(', ')}.
+                    [STRICT INSTRUCTION: FACE DNA PRESERVATION]: 
+                    - Analyze and lock the Face DNA of all subjects (Image 2 onwards).
+                    - Preserve facial features and identity 100% accurately.
+                    - Seamlessly integrate them into the scene of Image 1.
+                    - Match lighting, shadows, and perspective of the base photo.
+                    [USER CONCEPT]: ${userPrompt}
+                `.trim();
+            }
             else if (featureId === 'product') {
-                if (useModel) {
-                     systemPrompt += " [IMPORTANT: Image 1 is PRODUCT, Image 2 is MODEL. Model must hold/use product.]";
-                }
-                finalPrompt = `${userPrompt} \n\n[VARIATION ${i+1}]: Use a unique angle, lighting setup, or background composition for this shot.`;
+                const modelContext = uploadedImages[1]?.base64 ? `
+                    [MODEL INTEGRATION]:
+                    - Image 2 is the MODEL.
+                    - The model MUST be the actor demonstrating the product (Image 1).
+                    - Action: ${modelAction}.
+                    - Ensure the model's interaction with the product looks natural and professional.
+                    - Face DNA of the model MUST be preserved 100%.
+                ` : "[NO MODEL]: Focus purely on the product (Image 1).";
+
+                finalPrompt = `
+                    [TASK]: PROFESSIONAL PRODUCT ADVERTISEMENT.
+                    [PRODUCT]: Image 1.
+                    ${modelContext}
+                    [SCENE/SETTING]: ${productScene}.
+                    [LIGHTING]: ${productLighting}.
+                    [USER CONCEPT]: ${userPrompt}
+                    
+                    [STRICT REQUIREMENTS]:
+                    - The product (Image 1) must be the central focus.
+                    - High-end commercial photography style.
+                    - Sharp details, realistic textures, and premium aesthetic.
+                    - [VARIATION ${i+1}]: Apply a unique artistic composition or camera angle.
+                `.trim();
             }
             else if (featureId === 'pasfoto') {
                 // Pas foto usually needs consistency, but we can vary slightly to give options
@@ -340,8 +382,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             // --- API CALL ---
             let resultBase64 = "";
 
-            // Use Composite if: Product+Model, Prewed, or generally multiple images
-            if ((featureId === 'product' && useModel) || featureId === 'prewed') {
+            // Use Composite if: Product+Model, Prewed, Join, or generally multiple images
+            if ((featureId === 'product' && uploadedImages[1]?.base64) || featureId === 'prewed' || featureId === 'join') {
                  resultBase64 = await generateCompositeImage(
                     compositeInputs,
                     finalPrompt,
@@ -402,7 +444,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({
       return;
     }
     if (isJoinMode && uploadedImages.length < 2) {
-      alert("Mohon unggah minimal 2 foto: 1. Foto Grup Utama, 2. Foto Orang yang ingin ditambahkan.");
+      alert("Mohon unggah minimal 2 foto: 1. Foto Orang Pertama, 2. Foto Orang Kedua.");
       return;
     }
     // Carousel allows 0 or more
@@ -716,6 +758,34 @@ export const Workspace: React.FC<WorkspaceProps> = ({
         {/* Header / Title Area */}
         <div className="border-b border-zinc-900 pb-6">
           <h2 className="text-3xl font-light text-white mb-2 serif tracking-tight">{selectedFeature.label}</h2>
+          
+          {/* Tool Description & Example Preview */}
+          <div className="mt-4 mb-6 space-y-4">
+            {selectedFeature.description && (
+              <div className="flex gap-3 p-4 bg-zinc-900/50 border border-zinc-800/50 rounded-2xl">
+                <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: appSettings.themeColor }}></div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed font-medium italic">
+                  {selectedFeature.description}
+                </p>
+              </div>
+            )}
+            
+            {selectedFeature.exampleImage && (
+              <div className="group relative aspect-video rounded-2xl overflow-hidden border border-zinc-800/50 bg-zinc-900/50">
+                <img 
+                  src={selectedFeature.exampleImage} 
+                  alt={`Contoh ${selectedFeature.label}`} 
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                <div className="absolute bottom-3 left-4">
+                  <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Contoh Konsep</span>
+                </div>
+              </div>
+            )}
+          </div>
+
           <p className="text-xs text-zinc-500 leading-relaxed font-light">
              {isFaceSwap 
                ? "Wajib unggah 2 foto: 1. Wajah Sumber, 2. Foto Target. Wajah sumber akan dipasang ke foto target."
@@ -742,7 +812,6 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                  setUploadedImages([]);
                  setLocalCompositeResults([]);
                  setExpandSettings({ top: 0, right: 0, bottom: 0, left: 0 });
-                 setUseModel(false);
                  clearCanvas();
                }}
                className="mt-3 text-xs text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
@@ -760,73 +829,67 @@ export const Workspace: React.FC<WorkspaceProps> = ({
            
            {/* Custom Join Photo UI */}
            {isJoinMode && (
-             <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6">
                  {/* Concept Explanation Card */}
                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex flex-col gap-3">
                     <div className="flex items-center gap-2 text-blue-400">
                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
                        </svg>
-                       <span className="text-sm font-bold">Cara Kerja Gabung Foto</span>
+                       <span className="text-sm font-bold">Smart Join (Gabung Cerdas)</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <div className="flex flex-col gap-1">
-                          <span className="text-[11px] font-bold text-blue-300 uppercase">1. Foto Utama (Latar)</span>
-                          <p className="text-[10px] text-zinc-400 leading-relaxed">Gunakan foto grup atau pemandangan. Ini adalah "wadah" tempat orang baru akan diletakkan.</p>
-                       </div>
-                       <div className="flex flex-col gap-1">
-                          <span className="text-[11px] font-bold text-purple-300 uppercase">2. Subjek Baru (Wajah)</span>
-                          <p className="text-[10px] text-zinc-400 leading-relaxed">Cukup upload pas foto wajah. AI akan otomatis membuatkan badan, baju, dan pose yang serasi dengan foto utama.</p>
-                       </div>
-                    </div>
+                    <p className="text-[10px] text-zinc-400 leading-relaxed">
+                       Pilih satu foto sebagai <b>Latar Utama</b> (bisa foto grup atau pemandangan), lalu upload <b>Subjek</b> yang ingin dimasukkan ke dalam foto tersebut.
+                    </p>
                  </div>
 
                  <div className="flex flex-col gap-2">
-                   <span className="text-xs font-bold text-blue-400 uppercase flex items-center gap-2">
-                     <span className="w-4 h-4 rounded-full bg-blue-500 text-black flex items-center justify-center text-[10px]">1</span>
-                     Foto Utama (Grup/Latar)
-                   </span>
-                   <ImageUploader 
-                     onImageSelected={(b64, mime) => handleSpecificImageUpload(0, b64, mime)} 
-                     currentImage={uploadedImages[0]?.base64 ? `data:${uploadedImages[0].mimeType};base64,${uploadedImages[0].base64}` : null}
-                     label="Upload Foto Grup Utama"
-                   />
-                </div>
-                
-                <div className="flex flex-col gap-2">
-                   <span className="text-xs font-bold text-purple-400 uppercase flex items-center gap-2">
-                     <span className="w-4 h-4 rounded-full bg-purple-500 text-black flex items-center justify-center text-[10px]">2</span>
-                     Subjek Baru (Cukup Wajah)
-                   </span>
-                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                     {[1, 2, 3, 4].map((idx) => (
-                       <div key={idx} className="relative group">
-                         <ImageUploader 
-                           onImageSelected={(b64, mime) => handleSpecificImageUpload(idx, b64, mime)} 
-                           currentImage={uploadedImages[idx]?.base64 ? `data:${uploadedImages[idx].mimeType};base64,${uploadedImages[idx].base64}` : null}
-                           label={`Subjek ${idx}`}
-                           compact
-                         />
-                         {uploadedImages[idx]?.base64 && (
-                           <button 
-                             onClick={() => removeImage(idx)}
-                             className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                           >
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-                               <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                             </svg>
-                           </button>
-                         )}
-                       </div>
-                     ))}
-                   </div>
-                    <div className="flex items-center gap-2 bg-zinc-800/50 p-2 rounded-lg border border-zinc-700/50">
-                       <svg className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                       <p className="text-[10px] text-zinc-400">AI akan menganalisa pose & fashion agar realistis.</p>
+                    <span className="text-xs font-bold text-blue-400 uppercase flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-blue-500 text-black flex items-center justify-center text-[10px]">1</span>
+                      Foto Utama / Latar
+                    </span>
+                    <ImageUploader 
+                      onImageSelected={(b64, mime) => handleSpecificImageUpload(0, b64, mime)} 
+                      currentImage={uploadedImages[0]?.base64 ? `data:${uploadedImages[0].mimeType};base64,${uploadedImages[0].base64}` : null}
+                      label="Upload Foto Latar (Grup/Scene)"
+                    />
+                 </div>
+                 
+                 <div className="flex flex-col gap-2">
+                    <span className="text-xs font-bold text-purple-400 uppercase flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-purple-500 text-black flex items-center justify-center text-[10px]">2</span>
+                      Subjek Tambahan (Wajah)
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[1, 2, 3, 4].map((idx) => (
+                        <div key={idx} className="relative group">
+                          <ImageUploader 
+                            onImageSelected={(b64, mime) => handleSpecificImageUpload(idx, b64, mime)} 
+                            currentImage={uploadedImages[idx]?.base64 ? `data:${uploadedImages[idx].mimeType};base64,${uploadedImages[idx].base64}` : null}
+                            label={`Orang ${idx}`}
+                            compact
+                          />
+                          {uploadedImages[idx]?.base64 && (
+                            <button 
+                              onClick={() => removeImage(idx)}
+                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                </div>
-             </div>
-           )}
+                 </div>
+
+                 <div className="flex items-center gap-2 bg-zinc-800/50 p-2 rounded-lg border border-zinc-700/50">
+                    <svg className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p className="text-[10px] text-zinc-400">AI akan menyatukan subjek ke dalam latar secara otomatis.</p>
+                 </div>
+              </div>
+            )}
 
            {/* Custom Face Swap UI */}
            {isFaceSwap && (
@@ -931,35 +994,174 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
            {/* Custom Product UI */}
            {isProductMode && (
-             <div className="flex flex-col gap-4">
-               <div className="flex flex-col gap-2">
-                   <span className="text-xs font-bold text-emerald-400 uppercase">Produk</span>
-                   {uploadedImages[0] ? (
-                     <div className="relative w-full aspect-square rounded-lg overflow-hidden border border-emerald-500/50 group">
-                        <img src={`data:${uploadedImages[0].mimeType};base64,${uploadedImages[0].base64}`} className="w-full h-full object-cover" />
-                        <button onClick={() => removeImage(0)} className="absolute top-2 right-2 bg-black/60 hover:bg-red-600 text-white p-1.5 rounded-full transition-all">x</button>
-                     </div>
-                   ) : <div className="w-full aspect-square rounded-lg border-2 border-dashed border-zinc-700 bg-zinc-900/50 relative"><ImageUploader onImageSelected={handleMultiImageUpload} /><div className="absolute inset-0 pointer-events-none flex items-center justify-center text-zinc-500 text-xs">Produk</div></div>}
-                </div>
-
-                <div className="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-                  <button onClick={() => { setUseModel(false); if(uploadedImages.length > 1) removeImage(1); }} className={`flex-1 text-xs py-2 rounded-md transition-all ${!useModel ? 'bg-zinc-700 text-white shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>Produk Saja</button>
-                  <button onClick={() => setUseModel(true)} className={`flex-1 text-xs py-2 rounded-md transition-all ${useModel ? 'bg-teal-600 text-white shadow' : 'text-zinc-500 hover:text-zinc-300'}`}>+ Model</button>
-                </div>
-
-                {useModel && (
-                  <div className="flex flex-col gap-2 animate-fade-in-up">
-                    <span className="text-xs font-bold text-teal-400 uppercase">Model</span>
-                    {uploadedImages[1]?.base64 ? (
-                      <div className="relative w-full aspect-[4/5] rounded-lg overflow-hidden border border-teal-500/50 group">
-                          <img src={`data:${uploadedImages[1].mimeType};base64,${uploadedImages[1].base64}`} className="w-full h-full object-cover" />
-                          <button onClick={() => removeImage(1)} className="absolute top-2 right-2 bg-black/60 hover:bg-red-600 text-white p-1.5 rounded-full transition-all">x</button>
-                      </div>
-                    ) : <div className="w-full aspect-[4/5] rounded-lg border-2 border-dashed border-zinc-700 bg-zinc-900/50 relative"><div className="absolute inset-0 opacity-0 z-10 cursor-pointer"><ImageUploader onImageSelected={(b, m) => handleSpecificImageUpload(1, b, m)} /></div><div className="absolute inset-0 pointer-events-none flex items-center justify-center text-zinc-500 text-xs">Model</div></div>}
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Column 1: Product */}
+                  <div className="flex-1 flex flex-col gap-4 bg-zinc-900/40 p-5 rounded-3xl border border-zinc-800/50 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500/50"></div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 text-[10px] font-bold">1</div>
+                      <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Foto Produk Utama</span>
+                    </div>
+                    
+                    <div className="relative aspect-square">
+                      {uploadedImages[0]?.base64 ? (
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden border border-emerald-500/30 group shadow-2xl">
+                          <img 
+                            src={`data:${uploadedImages[0].mimeType};base64,${uploadedImages[0].base64}`} 
+                            className="w-full h-full object-cover" 
+                            alt="Product"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                             <button 
+                                onClick={() => removeImage(0)} 
+                                className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-red-600 transition-all transform hover:scale-105"
+                             >
+                               Hapus Produk
+                             </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full rounded-2xl overflow-hidden">
+                          <ImageUploader 
+                            onImageSelected={(b, m) => handleSpecificImageUpload(0, b, m)} 
+                            label="Upload Produk"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-zinc-500 text-center font-medium">Foto produk yang ingin diiklankan.</p>
                   </div>
-                )}
-             </div>
-           )}
+
+                  {/* Column 2: Model */}
+                  <div className="flex-1 flex flex-col gap-4 bg-zinc-900/40 p-5 rounded-3xl border border-zinc-800/50 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-teal-500/50"></div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-500 text-[10px] font-bold">2</div>
+                        <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Model Peraga</span>
+                      </div>
+                      <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">Opsional</span>
+                    </div>
+                    
+                    <div className="relative aspect-square">
+                      {uploadedImages[1]?.base64 ? (
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden border border-teal-500/30 group shadow-2xl">
+                          <img 
+                            src={`data:${uploadedImages[1].mimeType};base64,${uploadedImages[1].base64}`} 
+                            className="w-full h-full object-cover" 
+                            alt="Model"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                             <button 
+                                onClick={() => removeImage(1)} 
+                                className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl hover:bg-red-600 transition-all transform hover:scale-105"
+                             >
+                               Hapus Model
+                             </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-full h-full rounded-2xl overflow-hidden">
+                          <ImageUploader 
+                            onImageSelected={(b, m) => handleSpecificImageUpload(1, b, m)} 
+                            label="Upload Model"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-zinc-500 text-center font-medium">Model yang akan meragakan produk.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
+                      Latar Belakang (Scene)
+                    </label>
+                    <div className="relative">
+                      <select 
+                        value={productScene}
+                        onChange={(e) => setProductScene(e.target.value)}
+                        className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                      >
+                        <option>Studio Minimalist (Putih/Abu)</option>
+                        <option>Luxury Marble & Gold</option>
+                        <option>Nature & Tropical Garden</option>
+                        <option>Urban Street / Industrial</option>
+                        <option>Cozy Home / Interior</option>
+                        <option>Cyberpunk / Neon Night</option>
+                        <option>Podium & Spotlight</option>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
+                      Pencahayaan (Lighting)
+                    </label>
+                    <div className="relative">
+                      <select 
+                        value={productLighting}
+                        onChange={(e) => setProductLighting(e.target.value)}
+                        className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                      >
+                        <option>Softbox Studio (Natural)</option>
+                        <option>Golden Hour (Matahari Terbenam)</option>
+                        <option>Dramatic Cinematic (High Contrast)</option>
+                        <option>Bright & Airy (High Key)</option>
+                        <option>Neon Glow (Vibrant)</option>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 md:col-span-2">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
+                      Aksi Model (Interaction)
+                    </label>
+                    <div className="relative">
+                      <select 
+                        value={modelAction}
+                        onChange={(e) => setModelAction(e.target.value)}
+                        className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                      >
+                        <option>Memegang Produk dengan Bangga</option>
+                        <option>Menggunakan Produk (Demo)</option>
+                        <option>Berpose Elegan di Samping Produk</option>
+                        <option>Menunjuk ke Arah Produk</option>
+                        <option>Ekspresi Terkejut/Senang Melihat Produk</option>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-5 bg-gradient-to-r from-teal-900/20 to-transparent border border-teal-500/20 p-5 rounded-3xl">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-400 shrink-0 shadow-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18L21 9l-9-9-9 9 9 9z" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-[11px] font-black text-teal-400 uppercase tracking-[0.2em]">Tips Promosi Kreatif</p>
+                    <p className="text-[10px] text-teal-200/60 leading-relaxed font-medium">
+                      Tambahkan detail seperti <span className="text-teal-300">"ada percikan air"</span> atau <span className="text-teal-300">"daun berjatuhan"</span> di kolom perintah untuk hasil yang lebih dramatis dan profesional.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
            {/* Generic Multi Upload (Join/Carousel) */}
            {((isMultiMode && !isFaceSwap && !isProductMode && !isPrewedMode && !isJoinMode) || (isCarouselMode && uploadedImages.length > 0)) && (
@@ -1035,9 +1237,40 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3A5.25 5.25 0 0012 1.5zm-3.75 5.25a3.75 3.75 0 117.5 0v3h-7.5v-3z" clipRule="evenodd" />
               </svg>
             </div>
-            <div>
+            <div className="flex flex-col">
               <p className="text-[10px] font-bold text-teal-400 uppercase tracking-wider">Face DNA Lock Active</p>
               <p className="text-[9px] text-teal-200/70 leading-tight">Identitas wajah akan dijaga 100% akurat sesuai foto asli.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Quota Info Box */}
+        {!userApiKey && (
+          <div className="bg-amber-900/10 border border-amber-500/20 p-4 rounded-xl flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-amber-500">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs font-bold uppercase tracking-wider">Peringatan: API Key Belum Terpasang</span>
+            </div>
+            <p className="text-[11px] text-amber-200/70 leading-relaxed">
+              Agar aplikasi dapat digunakan dengan lancar oleh publik, setiap pengguna disarankan memasukkan **API Key Gemini** milik sendiri. Ini memastikan Anda memiliki kuota penuh dan privasi data yang terjaga.
+            </p>
+            <div className="flex gap-2">
+              <a 
+                href="https://aistudio.google.com/app/apikey" 
+                target="_blank" 
+                rel="noreferrer"
+                className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 text-[10px] font-bold rounded-lg transition-colors border border-amber-500/30"
+              >
+                AMBIL API KEY GRATIS
+              </a>
+              <button 
+                onClick={() => (window as any).openSettings?.()}
+                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-lg transition-colors border border-zinc-700"
+              >
+                PASANG DI PENGATURAN
+              </button>
             </div>
           </div>
         )}
@@ -1154,7 +1387,10 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 // Validation Logic
                 disabled={
                     loading || 
-                    (isMultiMode && uploadedImages.length < (isProductMode && !useModel ? 1 : 2)) || // Product single needs 1, others 2
+                    (isProductMode && !uploadedImages[0]?.base64) ||
+                    (isPrewedMode && (!uploadedImages[0]?.base64 || !uploadedImages[1]?.base64)) ||
+                    (isJoinMode && uploadedImages.filter(img => img.base64).length < 2) ||
+                    (isFaceSwap && (!uploadedImages[0]?.base64 || !uploadedImages[1]?.base64)) ||
                     (!isMultiMode && !isCarouselMode && !isPrewedMode && !originalImage && !isMascotMode && !isBannerMode && !isLogoMode)
                 }
                 selectedFeature={selectedFeature}

@@ -94,6 +94,12 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Expose settings to window for Workspace button
+  useEffect(() => {
+    (window as any).openSettings = () => setShowSettings(true);
+    return () => { delete (window as any).openSettings; };
+  }, []);
+
   // Check for AI Studio Key
   useEffect(() => {
     const checkAiStudio = async () => {
@@ -298,6 +304,8 @@ const App: React.FC = () => {
           onSave={handleSaveApiKey}
           onClose={() => setShowSettings(false)}
           hasDefaultKey={hasDefaultKey}
+          canConnectAiStudio={!!window.aistudio}
+          isAiStudioConnected={hasAiStudioKey}
         />
       )}
 
@@ -319,7 +327,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-red-500 shrink-0">
                     <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.599-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
                   </svg>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium flex-1">
                     {error.message}
                     {error.link && (
                       <a href={error.link} target="_blank" rel="noreferrer" className="ml-2 underline text-blue-400 hover:text-blue-300">
@@ -327,6 +335,14 @@ const App: React.FC = () => {
                       </a>
                     )}
                   </div>
+                  {(error.message.includes('Network Error') || error.message.includes('network-request-failed') || error.message.includes('auth/network-request-failed')) && (
+                    <button 
+                      onClick={() => window.open(window.location.href, '_blank')}
+                      className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-md hover:bg-red-400 transition-colors shrink-0"
+                    >
+                      BUKA DI TAB BARU
+                    </button>
+                  )}
                 </div>
               )}
               <Workspace 

@@ -33,7 +33,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
       let errorMsg = error.message || "Gagal masuk dengan Google.";
       
       // Handle specific Firebase Auth errors
-      if (error.code === 'auth/the-service-is-currently-unavailable' || error.message?.includes('service-is-currently-unavailable')) {
+      if (error.code === 'auth/network-request-failed' || error.message?.includes('network-request-failed')) {
+        errorMsg = "Koneksi gagal (Network Error). Ini biasanya terjadi karena batasan browser di dalam preview. Silakan klik tombol 'Buka di Tab Baru' di bawah untuk login dengan lancar.";
+      } else if (error.code === 'auth/the-service-is-currently-unavailable' || error.message?.includes('service-is-currently-unavailable')) {
         errorMsg = "Layanan Autentikasi Firebase belum aktif atau domain belum diizinkan. Silakan hubungi Admin untuk mengaktifkan 'Identity Toolkit API' dan menambahkan domain aplikasi ke 'Authorized Domains' di Firebase Console.";
       } else if (error.code === 'auth/unauthorized-domain') {
         const currentDomain = window.location.hostname;
@@ -47,6 +49,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const openInNewTab = () => {
+    window.open(window.location.href, '_blank');
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -199,6 +205,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
               </svg>
             )}
             Sign in with Google
+          </button>
+
+          <button 
+            onClick={openInNewTab}
+            className="w-full py-3 px-4 bg-zinc-900 text-zinc-400 font-medium rounded-xl hover:bg-zinc-800 hover:text-white transition-all border border-zinc-800 flex items-center justify-center gap-3 elegant-caps text-[10px]"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+            Buka di Tab Baru (Rekomendasi)
           </button>
         </div>
 

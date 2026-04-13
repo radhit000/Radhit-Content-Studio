@@ -38,20 +38,24 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'join', 
         label: 'Gabung Foto', 
         icon: Icons.Join, 
-        systemPrompt: "ROLE: Professional Photo Compositor & VFX Artist. TASK: Add new individuals into an existing group photo seamlessly. INPUTS: Image 1 is the BASE GROUP PHOTO. Subsequent images are FACE/HEADSHOTS of people to be added. REQUIREMENTS: 1. BODY GENERATION: For each added person, generate a full body, clothing, and pose that matches the group's context. 2. FASHION MATCHING: Analyze the clothing style of people in the base photo (e.g., formal, casual, traditional) and dress the new individuals accordingly. 3. LIGHTING & PERSPECTIVE: Match the lighting direction, shadows, color temperature, and camera angle of the base photo perfectly. 4. PLACEMENT: Intelligently place the new individuals in realistic positions (e.g., standing in a gap, sitting next to others) without overlapping awkwardly. 5. IDENTITY PRESERVATION: Strictly preserve the facial features from the headshot images. OUTPUT: A high-quality, photorealistic single frame where everyone looks like they were part of the original photoshoot.",
-        placeholder: "Instruksi tambahan (misal: letakkan orang baru di tengah)...",
+        description: 'Gabungkan orang atau objek dari foto berbeda ke dalam satu foto secara mulus dengan pencahayaan yang pas.',
+        exampleImage: 'https://picsum.photos/seed/composite-group/400/300',
+        systemPrompt: "ROLE: Professional Photo Compositor & VFX Artist. TASK: Seamlessly integrate one or more people into a base photo. INPUTS: Image 1 is the BASE PHOTO (can be a group, a scene, or a person). Images 2-5 are the SUBJECTS to be added. REQUIREMENTS: 1. INTEGRATION: Place the subjects from Images 2-5 into the scene of Image 1 naturally. 2. COMPOSITION: Adjust poses, sizes, and positions to make the interaction look authentic. 3. LIGHTING: Match the lighting, shadows, and color grading of the subjects to the base photo. 4. IDENTITY: Preserve 100% facial accuracy for all subjects. 5. SCENARIO: Follow the user's prompt for the specific interaction or theme. OUTPUT: A single, high-quality photorealistic composite image.",
+        placeholder: "Contoh: Masukkan saya ke foto grup ini, atau Gabungkan saya dengan artis ini...",
         allowMultiUpload: true,
         quickPrompts: [
-            "Tambahkan orang baru ke foto grup ini", 
-            "Gabungkan dengan busana yang serasi", 
-            "Sesuaikan pose dengan suasana grup", 
-            "Buat komposisi keluarga lengkap"
+            "Masukkan saya ke foto grup ini", 
+            "Gabungkan saya dengan artis di foto ini", 
+            "Tambahkan teman saya ke foto liburan ini", 
+            "Buat kami terlihat sedang ngobrol bareng"
         ]
       },
       { 
         id: 'restore', 
         label: 'Perbaiki Foto', 
         icon: Icons.Restore, 
+        description: 'Pulihkan foto lama yang rusak, pudar, atau buram menjadi kualitas HD yang tajam dan berwarna.',
+        exampleImage: 'https://picsum.photos/seed/old-photo-restored/400/300',
         systemPrompt: "ROLE: Expert Photo Restorer & Archivist. TASK: Restore the old, damaged, or low-quality photo to pristine HD condition. REQUIREMENTS: 1. REMOVE all scratches, dust, creases, tear marks, and mold spots. 2. DENOISE heavily to remove grain. 3. FACE RESTORATION: Sharpen facial details, eyes, and skin texture to look realistic and defined. 4. COLOR CORRECTION: If the photo is faded/sepia, restore natural contrast. If B&W, implied task is to COLORIZE it naturally unless requested to keep B&W. 5. Output must be crisp, 8K resolution, and professionally cleaned.",
         placeholder: "Jelaskan kondisi foto (misal: foto jadul tahun 90an)...",
         quickPrompts: [
@@ -65,6 +69,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'faceswap', 
         label: 'Face Swap', 
         icon: Icons.FaceSwap, 
+        description: 'Tukar wajah antara dua foto dengan hasil yang sangat realistis dan menyatu sempurna.',
+        exampleImage: 'https://picsum.photos/seed/face-swap-vfx/400/300',
         systemPrompt: "ROLE: Expert VFX Artist & Photo Manipulator. TASK: Perform a seamless FACE SWAP using the provided images. INSTRUCTIONS: The FIRST image is the SOURCE FACE. The SECOND image is the TARGET BODY/SCENE. 1. Extract the facial features from the SOURCE FACE. 2. Apply them onto the subject in the TARGET PHOTO. 3. STRICTLY MATCH the skin tone, lighting angle, grain, and resolution of the TARGET PHOTO. 4. Ensure the blending at the neck and hairline is invisible. 5. Maintain the expression of the target photo unless specified otherwise. OUTPUT: A photorealistic image where the target person now looks like the source person.",
         placeholder: "Klik 'Buat Gambar' untuk menukar wajah...",
         allowMultiUpload: true, // Enabled for 2-step process
@@ -79,6 +85,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'miniature', 
         label: 'Foto Miniature', 
         icon: Icons.Miniature, 
+        description: 'Ubah subjek foto menjadi figur tanah liat (clay) mini yang lucu di dunia raksasa.',
+        exampleImage: 'https://picsum.photos/seed/clay-miniature/400/300',
         systemPrompt: "ROLE: 3D Clay Miniature Artist & Macro Photographer. TASK: Transform the main subject from the photo into a realistic, cute small clay figurine (plasticine style) placed within a life-sized environment. REQUIREMENTS: 1. TEXTURE: Give the subject a soft, matte clay texture with rounded edges (cute 3D style). 2. SCALE: The subject must appear tiny (macro scale) relative to the background elements which should remain normal size. 3. CONTEXT: The background remains realistic and normal-sized to emphasize the miniature effect. 4. INTERACTION: Make the clay figure interact playfully with the giant surroundings (e.g., climbing a cup, sitting on a leaf, hiding behind a pen). 5. LIGHTING: Use shallow depth of field (bokeh) to focus on the clay figure.",
         placeholder: "Sedang melakukan apa di dunia raksasa ini?",
         quickPrompts: [
@@ -92,6 +100,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'expand', 
         label: 'Perluas Foto', 
         icon: Icons.Expand, 
+        description: 'Perluas area foto Anda secara ajaib dengan AI yang melengkapi latar belakang secara otomatis.',
+        exampleImage: 'https://picsum.photos/seed/landscape-expansion/400/300',
         systemPrompt: "ROLE: AI Image Outpainter. TASK: The input image contains the ORIGINAL PHOTO in the center (or offset), surrounded by plain WHITE/BLANK space. Your job is to FILL the white space to expand the scene. REQUIREMENTS: 1. Analyze the edges of the central image. 2. GENERATE new content in the blank areas that perfectly matches the perspective, lighting, and style of the central image. 3. DO NOT change the central image content, only extend it. 4. Ensure seamless transitions (no visible seams). 5. If the original is a landscape, extend the horizon. If it's a room, extend the walls/furniture.",
         placeholder: "Atur slider area perluasan...",
         quickPrompts: []
@@ -100,6 +110,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'edit', 
         label: 'Edit Foto', 
         icon: Icons.Edit, 
+        description: 'Edit bagian spesifik dari foto Anda, seperti mengubah warna langit atau menghapus objek yang mengganggu.',
+        exampleImage: 'https://picsum.photos/seed/photo-retouching/400/300',
         systemPrompt: "ROLE: Senior Photo Retoucher. TASK: Execute the user's specific editing request with precision. REQUIREMENTS: 1. If changing colors, use precise masking. 2. If changing time of day, adjust global lighting, sky color, and shadows accordingly. 3. Maintain skin texture and fine details. 4. Ensure the result looks like a native photograph, not a digital manipulation.",
         placeholder: "Apa yang ingin diubah?",
         quickPrompts: [
@@ -113,6 +125,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'artist', 
         label: 'Foto Artis', 
         icon: Icons.Artist, 
+        description: 'Transformasi penampilan Anda dengan gaya makeup dan pencahayaan ala bintang Hollywood atau Idol K-Pop.',
+        exampleImage: 'https://picsum.photos/seed/celebrity-glamour/400/300',
         systemPrompt: "ROLE: Celebrity Stylist & Photographer. TASK: Transform the subject to have the aesthetic of a high-profile celebrity. REQUIREMENTS: 1. Enhance makeup, hair volume, and skin glow (Hollywood standard). 2. Adjust lighting to 'Red Carpet' or 'Magazine Cover' style (Butterfly or Rembrandt lighting). 3. Make the subject look charismatic and star-quality while retaining their identity.",
         placeholder: "Gaya artis siapa yang diinginkan?",
         quickPrompts: [
@@ -126,6 +140,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'removebg', 
         label: 'Hapus BG', 
         icon: Icons.RemoveBG, 
+        description: 'Hapus latar belakang foto secara otomatis dengan hasil potongan yang rapi, termasuk detail rambut.',
+        exampleImage: 'https://picsum.photos/seed/transparent-background/400/300',
         systemPrompt: "ROLE: Masking Specialist. TASK: Remove the background completely. REQUIREMENTS: 1. Perform complex hair masking and edge detection. 2. Return the subject on a pure WHITE background (unless TRANSPARENT is requested). 3. No green/blue spill from the original background. 4. Keep shadows only if they ground the subject naturally.",
         placeholder: "Pilih jenis background...",
         quickPrompts: [
@@ -144,6 +160,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'product', 
         label: 'Foto Produk', 
         icon: Icons.Product, 
+        description: 'Ubah foto produk biasa menjadi foto iklan profesional dengan latar belakang mewah dan estetik.',
+        exampleImage: 'https://picsum.photos/seed/luxury-product-shot/400/300',
         systemPrompt: "ROLE: Commercial Product Photographer & Art Director. TASK: Elevate the product image to e-commerce gold standard. REQUIREMENTS: 1. If a MODEL is provided (Image 2), create a high-quality ADVERTISING POSTER where the model interacts with the product (holding it, using it, or posing with it) in a professional manner. 2. If NO MODEL is provided, focus solely on the product. 3. Ensure the product is perfectly sharp and evenly lit. 4. Generate a premium background (marble, wooden, or podium) as described. 5. Output must look like a high-budget commercial photoshoot.",
         placeholder: "Deskripsikan setting produk...",
         allowMultiUpload: true, // Enabled to allow "With Model" flow
@@ -158,6 +176,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'fashion', 
         label: 'Foto Fashion', 
         icon: Icons.Fashion, 
+        description: 'Ubah gaya berpakaian dan suasana foto Anda menjadi seperti model majalah fashion ternama.',
+        exampleImage: 'https://picsum.photos/seed/vogue-fashion/400/300',
         systemPrompt: "ROLE: Vogue Editorial Photographer. TASK: Style the image for a fashion magazine spread. REQUIREMENTS: 1. Focus on the outfit/garment details. 2. Apply dramatic, high-fashion lighting (hard light or cinematic). 3. Color grade with a modern, trendy aesthetic (e.g., film grain, muted tones, or vibrant pop). 4. Ensure the pose looks intentional and modeled.",
         placeholder: "Tema fashion apa?",
         quickPrompts: [
@@ -171,6 +191,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'mockup', 
         label: 'Buat Mockup', 
         icon: Icons.Mockup, 
+        description: 'Tempelkan desain atau logo Anda ke berbagai objek fisik seperti kaos, cangkir, atau papan iklan.',
+        exampleImage: 'https://picsum.photos/seed/branding-mockup/400/300',
         systemPrompt: "ROLE: Mockup Designer. TASK: Apply the provided image/logo onto a physical object naturally. REQUIREMENTS: 1. Account for the curvature, texture, and lighting of the surface (cloth wrinkles, ceramic gloss, paper matte). 2. Use displacement maps logic to wrap the image realistically. 3. Match the white balance of the scene.",
         placeholder: "Tempel di mana?",
         quickPrompts: [
@@ -184,6 +206,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'banner', 
         label: 'Buat Banner', 
         icon: Icons.Banner, 
+        description: 'Buat banner promosi atau poster acara dengan komposisi ruang yang pas untuk teks iklan.',
+        exampleImage: 'https://picsum.photos/seed/marketing-banner/400/300',
         systemPrompt: "ROLE: Marketing Graphic Designer. TASK: Extend the image composition to create negative space suitable for text overlay (Banner/Poster format). REQUIREMENTS: 1. Extend background seamlessly to 16:9 or user specified ratio. 2. Balance the composition so the subject is on one side. 3. Ensure the aesthetic is clean, professional, and eye-catching for advertising.",
         placeholder: "Tema banner untuk apa?",
         quickPrompts: [
@@ -197,6 +221,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'carousel', 
         label: 'Buat Carousel', 
         icon: Icons.Cube, 
+        description: 'Buat 4 slide konten edukasi atau promosi yang estetik dan konsisten untuk Instagram.',
+        exampleImage: 'https://picsum.photos/seed/social-media-carousel/400/300',
         systemPrompt: "ROLE: Instagram Carousel Designer & Brand Storyteller. TASK: Create a high-quality, continuous 4-slide carousel sequence for social media. REQUIREMENTS: 1. CONSISTENCY IS KING: You must strictly adhere to the same Color Palette, Typography Style, and Graphic Elements across all generated slides. 2. NARRATIVE FLOW: The slides should tell a story (e.g., Intro -> Problem -> Solution -> CTA) or break down a tutorial step-by-step. 3. LAYOUT: Ensure the visual balance is perfect for square (1:1) or portrait (4:5) viewing. Text must be legible. 4. AESTHETIC: Create a cohesive visual identity that looks like it belongs to the same brand.",
         placeholder: "Tema carousel? (misal: 4 Tips Sukses Bisnis)",
         allowMultiUpload: true, // Allow images as reference for style
@@ -211,6 +237,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'pov', 
         label: 'POV Tangan', 
         icon: Icons.Hand, 
+        description: 'Ubah sudut pandang foto menjadi seolah-olah Anda sedang memegang atau berinteraksi dengan objek.',
+        exampleImage: 'https://picsum.photos/seed/first-person-pov/400/300',
         systemPrompt: "ROLE: First-Person Photographer. TASK: Re-imagine the scene from a First-Person Point of View (POV). REQUIREMENTS: 1. Generate realistic hands holding the object or interacting with the scene. 2. Match skin tone and lighting to the environment. 3. Ensure the angle implies the viewer is the one acting. 4. Use a slightly wider lens distortion for POV realism.",
         placeholder: "Sedang melakukan apa?",
         quickPrompts: [
@@ -229,6 +257,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'prewed', 
         label: 'Pre Wedding', 
         icon: Icons.Heart, 
+        description: 'Buat foto pre-wedding impian di lokasi manapun di dunia hanya dengan foto wajah Anda dan pasangan.',
+        exampleImage: 'https://picsum.photos/seed/romantic-wedding-couple/400/300',
         systemPrompt: "ROLE: World-Class Wedding & Portrait Photographer. TASK: Create a high-end, cinematic couple portrait using the two input images. INPUT IDENTIFICATION: Image 1 is the GROOM (Male). Image 2 is the BRIDE (Female). REQUIREMENTS: 1. Professional Composition: Use Rule of Thirds, Golden Ratio, or symmetrical framing. 2. Lighting: Apply professional studio lighting (Rembrandt, Butterfly) or natural 'Golden Hour' lighting. 3. Skin & Texture: Retouch skin naturally (Frequency Separation style), maintaining realistic texture while removing blemishes. 4. Wardrobe: Harmonize the couple's attire to look like a coordinated professional photoshoot. 5. Environment: Generate a breathtaking, detailed background that matches the requested theme. 6. Identity: Strictly preserve the facial features and identity of both subjects. VIBE: Romantic, High-Fashion, Luxury, Professional.",
         placeholder: "Lokasi impian? (misal: Senja di Santorini)",
         allowMultiUpload: true, // Enable multi upload for Groom + Bride
@@ -242,7 +272,7 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
             "Taman Bunga Sakura Jepang",
             "Kemewahan Hotel Bintang 5",
             "Padang Pasir Eksotis",
-            "Nuansa Salju Musim Dingin"
+            "Nuansa Salju Musim Dinign"
         ]
       },
       { 
@@ -275,6 +305,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'model', 
         label: 'Foto Model', 
         icon: Icons.User, 
+        description: 'Tingkatkan postur dan aura foto Anda agar terlihat seperti model profesional dengan pencahayaan studio.',
+        exampleImage: 'https://picsum.photos/seed/fashion-model-pose/400/300',
         systemPrompt: "ROLE: Modeling Scout/Director. TASK: Enhance the subject's posture and presence to look like a professional model. REQUIREMENTS: 1. Improve body language confidence. 2. Sharp, striking jawlines and features. 3. Clean, high-contrast fashion lighting.",
         placeholder: "Style model?",
         quickPrompts: [
@@ -288,6 +320,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'barber', 
         label: 'Barbershop', 
         icon: Icons.Scissor, 
+        description: 'Coba berbagai model rambut atau jenggot baru secara instan untuk melihat gaya yang paling cocok.',
+        exampleImage: 'https://picsum.photos/seed/hair-style-barber/400/300',
         systemPrompt: "ROLE: Professional Barber/Hairstylist. TASK: Change the subject's hairstyle or beard. REQUIREMENTS: 1. Realistic hair rendering (strands, shine, volume). 2. Fit the new hair to the head shape and hairline naturally. 3. Match the hair color to the eyebrows/roots unless specified.",
         placeholder: "Model rambut baru?",
         quickPrompts: [
@@ -301,6 +335,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'baby', 
         label: 'Baby Born', 
         icon: Icons.Star, 
+        description: 'Ubah foto bayi Anda menjadi sesi foto newborn profesional yang menggemaskan dengan berbagai properti.',
+        exampleImage: 'https://picsum.photos/seed/newborn-baby-photography/400/300',
         systemPrompt: "ROLE: Newborn Photographer (Anne Geddes style). TASK: Transform the baby photo into a professional newborn session. REQUIREMENTS: 1. Props & Wrap: Gently swaddle the baby in soft blankets or place in a cozy basket/nest if fits the pose. 2. Atmosphere: Dreamy, soft, ethereal. 3. Lighting: Very soft, diffused natural window light. 4. Colors: Pastel tones (soft pink, blue, cream, mint).",
         placeholder: "Tema foto bayi?",
         quickPrompts: [
@@ -314,6 +350,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'kids', 
         label: 'Kids', 
         icon: Icons.User, 
+        description: 'Buat potret anak yang ceria dan estetik dengan latar belakang taman atau studio yang penuh warna.',
+        exampleImage: 'https://picsum.photos/seed/happy-child-portrait/400/300',
         systemPrompt: "ROLE: Child Portrait Photographer. TASK: Create a vibrant, professional child portrait. REQUIREMENTS: 1. Expression: Capture innocence and joy. 2. Focus: Sharp focus on the eyes, creamy bokeh background. 3. Lighting: Bright, cheerful high-key lighting. 4. Environment: Playful but aesthetic (park, studio with balloons, clean room).",
         placeholder: "Tema foto anak?",
         quickPrompts: [
@@ -327,6 +365,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'haji', 
         label: 'Umrah / Haji', 
         icon: Icons.Moon, 
+        description: 'Visualisasikan momen ibadah di Tanah Suci dengan latar belakang Ka’bah atau Masjid Nabawi yang syahdu.',
+        exampleImage: 'https://picsum.photos/seed/mecca-kaaba-pilgrim/400/300',
         systemPrompt: "ROLE: Religious Portrait Photographer. TASK: Transform the subject into a pilgrim performing Umrah or Hajj. REQUIREMENTS: 1. Attire: If male, wear white Ihram cloth. If female, wear modest white or black Islamic dress/hijab. 2. Background: The Holy Kaaba (Masjidil Haram) or Masjid Nabawi, blurred slightly for depth. 3. Lighting: Spiritual, bright, golden sunlight. 4. Vibe: Serene, holy, peaceful.",
         placeholder: "Lokasi di tanah suci?",
         quickPrompts: [
@@ -340,6 +380,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'pasfoto', 
         label: 'Pas Foto', 
         icon: Icons.Camera, 
+        description: 'Buat pas foto formal secara instan dengan pilihan background merah, biru, atau putih.',
+        exampleImage: 'https://picsum.photos/seed/formal-id-photo/400/300',
         systemPrompt: "ROLE: Professional Studio Photographer. TASK: Create a formal ID Photo (Pas Foto). REQUIREMENTS: 1. Background: Solid RED or BLUE (based on user request) or plain White. 2. Attire: Formal business attire. Men: White shirt, black blazer/suit, tie (optional). Women: Formal blazer or modest formal blouse. 3. Pose: Straight front-facing, neutral expression, shoulders aligned. 4. Lighting: Flat, even studio lighting, no harsh shadows on face.",
         placeholder: "Warna background dan pakaian?",
         quickPrompts: [
@@ -353,6 +395,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'maternity', 
         label: 'Maternity', 
         icon: Icons.Heart, 
+        description: 'Abadikan momen kehamilan yang indah dengan gaya potret yang elegan dan penuh kehangatan.',
+        exampleImage: 'https://picsum.photos/seed/maternity-pregnancy-portrait/400/300',
         systemPrompt: "ROLE: Maternity Photographer. TASK: Create an elegant pregnancy portrait. REQUIREMENTS: 1. Focus: Highlight the baby bump (if visible) or the maternal glow. 2. Attire: Flowing, elegant maternity gown (silky, lace). 3. Atmosphere: Intimate, loving, soft. 4. Lighting: Rim lighting or soft silhouette to accentuate curves.",
         placeholder: "Tema maternity?",
         quickPrompts: [
@@ -371,6 +415,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'home', 
         label: 'Desain Rumah', 
         icon: Icons.Home, 
+        description: 'Visualisasikan desain interior rumah Anda dengan berbagai gaya seperti Minimalis, Industrial, atau Japandi.',
+        exampleImage: 'https://picsum.photos/seed/modern-interior-design/400/300',
         systemPrompt: "ROLE: Interior Designer & 3D Visualizer. TASK: Redesign the interior space. REQUIREMENTS: 1. Photorealistic rendering (V-Ray/Corona style). 2. Accurate scale of furniture. 3. Perfect ambient occlusion and lighting. 4. Apply the requested style (Scandinavian, Industrial, Japandi) consistently.",
         placeholder: "Gaya interior?",
         quickPrompts: [
@@ -384,6 +430,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'sketch', 
         label: 'Sketsa Gambar', 
         icon: Icons.Pencil, 
+        description: 'Ubah foto Anda menjadi karya seni sketsa tangan menggunakan pensil, arang, atau tinta.',
+        exampleImage: 'https://picsum.photos/seed/hand-drawn-sketch/400/300',
         systemPrompt: "ROLE: Traditional Artist. TASK: Convert the photo into a hand-drawn artwork. REQUIREMENTS: 1. Mimic traditional media textures (pencil graphite, charcoal dust, ink hatching). 2. Focus on line weight and shading. 3. Abstract the details into artistic strokes.",
         placeholder: "Jenis sketsa?",
         quickPrompts: [
@@ -397,6 +445,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'art', 
         label: 'Art & Karikatur', 
         icon: Icons.Artist, 
+        description: 'Ubah foto Anda menjadi karya seni digital, karikatur lucu, atau gaya lukisan Van Gogh.',
+        exampleImage: 'https://picsum.photos/seed/digital-art-caricature/400/300',
         systemPrompt: "ROLE: Digital Illustrator. TASK: Transform the image into a specific stylized art form. REQUIREMENTS: 1. Strong stylization (e.g., exaggerated features for caricature, brush strokes for oil painting). 2. Vibrant colors. 3. Creative interpretation of the subject.",
         placeholder: "Gaya seni?",
         quickPrompts: [
@@ -410,6 +460,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'tidy', 
         label: 'Auto Rapi', 
         icon: Icons.Edit, 
+        description: 'Rapikan ruangan yang berantakan dalam foto secara otomatis, menghapus sampah dan menata barang.',
+        exampleImage: 'https://picsum.photos/seed/organized-clean-room/400/300',
         systemPrompt: "ROLE: Professional Organizer (Marie Kondo style). TASK: Declutter the scene. REQUIREMENTS: 1. Identify and remove trash, clutter, and messy cables. 2. Straighten objects (books, frames). 3. Fill the empty spaces with clean, neutral surfaces. 4. Make the room look organized and spacious.",
         placeholder: "Apa yang perlu dirapikan?",
         quickPrompts: [
@@ -423,6 +475,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'logo', 
         label: 'Buat Logo', 
         icon: Icons.Cube, 
+        description: 'Ciptakan logo minimalis dan modern untuk brand Anda dengan gaya vektor yang bersih.',
+        exampleImage: 'https://picsum.photos/seed/minimalist-vector-logo/400/300',
         systemPrompt: "ROLE: Vector Logo Designer. TASK: Distill the essence of the image into a minimal logo mark. REQUIREMENTS: 1. Flat design, vector aesthetic. 2. Limited color palette (max 3 colors). 3. Clean geometric shapes. 4. Negative space utilization.",
         placeholder: "Nama brand atau gaya logo?",
         quickPrompts: [
@@ -436,6 +490,8 @@ export const MENU_CATEGORIES: FeatureCategory[] = [
         id: 'mascot', // RENAMED FROM 'mascot' in types or ensuring ID matches for new feature logic
         label: 'Buat Maskot', 
         icon: Icons.User, 
+        description: 'Ciptakan karakter maskot unik untuk brand Anda dalam gaya 3D, kartun, atau chibi yang menggemaskan.',
+        exampleImage: 'https://picsum.photos/seed/3d-brand-mascot/400/300',
         systemPrompt: "ROLE: 3D Character Designer & Brand Mascot Expert. TASK: Create a high-quality, distinctive mascot character based on user input and optional reference image. REQUIREMENTS: 1. STYLE: Strictly adhere to the requested style (Hewan/Animal, Manusia/Human, Kartun/Cartoon, 3D, Chibi). 2. BRANDING: Incorporate the requested BRAND COLORS dominantly in the clothing or character features. 3. QUALITY: Ensure the character is expressive, friendly, and suitable for commercial use (clean lines, good lighting). 4. If reference image is provided, use it as inspiration for the pose or base appearance. If not, generate from scratch based on description.",
         placeholder: "Deskripsikan karakter (misal: singa ramah minum kopi)...",
         quickPrompts: [

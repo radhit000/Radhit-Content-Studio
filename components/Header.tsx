@@ -84,14 +84,19 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button 
             onClick={onOpenSettings}
-            className="px-3 py-1.5 rounded-lg flex items-center gap-2 group transition-all duration-300 relative overflow-hidden bg-red-900/20 border border-red-500/50 hover:bg-red-900/40 hover:border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_20px_rgba(239,68,68,0.6)]"
+            className="px-3 py-1.5 rounded-lg flex flex-col items-center justify-center group transition-all duration-300 relative overflow-hidden bg-red-900/20 border border-red-500/50 hover:bg-red-900/40 hover:border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.3)] hover:shadow-[0_0_20px_rgba(239,68,68,0.6)]"
             title="Pengaturan API Key"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-            <span className="hidden sm:block text-xs font-bold text-red-400 group-hover:text-red-300 tracking-wide">API SETTINGS</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-red-500 group-hover:text-red-400 animate-pulse">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-            </svg>
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:block text-[9px] font-bold text-red-400 group-hover:text-red-300 tracking-wide uppercase">
+                {currentUser.customApiKey ? 'Personal Key' : 'Shared Key'}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-red-500 group-hover:text-red-400 animate-pulse">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+              </svg>
+            </div>
+            <span className="text-[7px] text-zinc-500 font-bold tracking-tighter leading-none mt-0.5">API SETTINGS</span>
           </button>
           
           <div className="h-6 w-px bg-zinc-800 hidden sm:block mx-2"></div>
