@@ -67,6 +67,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
 
   // Vacation Feature States
   const [vacationCountry, setVacationCountry] = useState('Pilih Negara');
+  const [vacationSpot, setVacationSpot] = useState('Pilih Tempat');
+  const [vacationReligion, setVacationReligion] = useState('Pilih Agama');
   const [vacationWorship, setVacationWorship] = useState('Pilih Ibadah');
 
   // Animation Feature State
@@ -75,6 +77,16 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   // Barbershop Feature States
   const [barberGender, setBarberGender] = useState('Pria');
   const [barberStyle, setBarberStyle] = useState('Pilih Model');
+  const [barberSoftlens, setBarberSoftlens] = useState('Tanpa Softlens');
+
+  // Home Design Feature States
+  const [homeConcept, setHomeConcept] = useState('Arsitektur Luar');
+  const [homeStyle, setHomeStyle] = useState('Modern Minimalist');
+  const [homePhase, setHomePhase] = useState('Bangunan Jadi');
+
+  // Haji & Umrah Feature States
+  const [hajiPackage, setHajiPackage] = useState('Umrah Reguler');
+  const [hajiDestination, setHajiDestination] = useState('Makkah & Madinah');
 
   // Expand Feature State
   const [expandSettings, setExpandSettings] = useState({ top: 0, right: 0, bottom: 0, left: 0 });
@@ -104,10 +116,18 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     setPasFotoColor('Merah');
     setPasFotoAttire('Kemeja Putih');
     setVacationCountry('Pilih Negara');
+    setVacationSpot('Pilih Tempat');
+    setVacationReligion('Pilih Agama');
     setVacationWorship('Pilih Ibadah');
     setAnimationStyle('Pixar 3D Style');
     setBarberGender('Pria');
     setBarberStyle('Pilih Model');
+    setBarberSoftlens('Tanpa Softlens');
+    setHomeConcept('Arsitektur Luar');
+    setHomeStyle('Modern Minimalist');
+    setHomePhase('Bangunan Jadi');
+    setHajiPackage('Umrah Reguler');
+    setHajiDestination('Makkah & Madinah');
     setExpandSettings({ top: 0, right: 0, bottom: 0, left: 0 });
     clearCanvas();
     setLocalCompositeResults([]);
@@ -371,14 +391,16 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 finalPrompt = `
                     [VARIATION ${i+1}]
                     [TASK]: VACATION & WORSHIP PHOTO TRANSFORMATION.
-                    [COUNTRY/LOCATION]: ${vacationCountry !== 'Pilih Negara' ? vacationCountry : "Global Famous Destination"}
-                    [WORSHIP SETTING]: ${vacationWorship !== 'Pilih Ibadah' ? vacationWorship : "Peaceful Sacred Setting"}
+                    [COUNTRY]: ${vacationCountry !== 'Pilih Negara' ? vacationCountry : "Global Famous Destination"}
+                    [TOURIST SPOT]: ${vacationSpot !== 'Pilih Tempat' ? vacationSpot : "Iconic Landmark"}
+                    [RELIGION]: ${vacationReligion !== 'Pilih Agama' ? vacationReligion : "Peaceful Faith"}
+                    [WORSHIP PLACE]: ${vacationWorship !== 'Pilih Ibadah' ? vacationWorship : "Sacred Setting"}
                     [USER CONCEPT]: ${userPrompt}
                     
                     [STRICT INSTRUCTIONS]:
                     - Lock and preserve the subject's Face DNA 100%.
-                    - If [COUNTRY] is selected, use iconic landmarks or atmosphere of that country.
-                    - If [WORSHIP] is selected, place the subject in a respectful, peaceful, and sacred setting of that faith.
+                    - If [COUNTRY] and [TOURIST SPOT] are selected, place the subject in that specific location with realistic lighting and atmosphere.
+                    - If [RELIGION] and [WORSHIP PLACE] are selected, place the subject in a respectful, peaceful, and sacred setting of that faith.
                     - EXCLUSION: DO NOT generate Islamic settings (Mosques, etc).
                     - Adjust attire and lighting to match the chosen environment.
                     - High-end travel photography style.
@@ -401,17 +423,19 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             else if (featureId === 'barber') {
                 finalPrompt = `
                     [VARIATION ${i+1}]
-                    [TASK]: HAIR & BEARD TRANSFORMATION.
+                    [TASK]: HAIR & BEAUTY TRANSFORMATION.
                     [GENDER]: ${barberGender}
                     [HAIRSTYLE]: ${barberStyle !== 'Pilih Model' ? barberStyle : "Modern Stylish Cut"}
+                    [SOFTLENS]: ${barberSoftlens !== 'Tanpa Softlens' ? barberSoftlens : "Natural Eyes"}
                     [USER CONCEPT]: ${userPrompt}
                     
                     [STRICT INSTRUCTIONS]:
                     - Lock and preserve the subject's Face DNA 100%.
                     - Apply the hairstyle '${barberStyle}' suitable for a ${barberGender}.
+                    ${barberSoftlens !== 'Tanpa Softlens' ? `- Change eye color to '${barberSoftlens}' realistically.` : ''}
                     - Ensure realistic hair texture, volume, and natural integration with the hairline.
                     - If 'Pria' and beard is requested, ensure realistic facial hair rendering.
-                    - Maintain the subject's original identity while changing only the hair/beard.
+                    - Maintain the subject's original identity while changing only the hair/beard/eyes.
                 `.trim();
             }
             else if (featureId === 'pasfoto') {
@@ -428,6 +452,51 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                     - The subject MUST wear ${pasFotoAttire}.
                     - Ensure perfect formal posture and studio lighting.
                     ${userPrompt ? `[ADDITIONAL]: ${userPrompt}` : ''}
+                `.trim();
+            }
+            else if (featureId === 'home') {
+                const timelapsePhases = [
+                    "Initial architectural sketch and 3D wireframe blueprint",
+                    "Foundation laying and structural framing phase",
+                    "Exterior wall construction and roofing with scaffolding",
+                    "Final completed building with landscaping and interior lighting"
+                ];
+                const currentPhase = timelapsePhases[i % timelapsePhases.length];
+                const isTimelapse = homePhase.includes('Timelapse Mode');
+                
+                finalPrompt = `
+                    [VARIATION ${i+1}]
+                    [TASK]: VIRAL HOME DESIGN TIMELAPSE CONCEPT.
+                    [CONCEPT]: ${homeConcept}
+                    [STYLE]: ${homeStyle}
+                    [PHASE]: ${isTimelapse ? currentPhase : homePhase}
+                    [USER CONCEPT]: ${userPrompt}
+                    
+                    [STRICT INSTRUCTIONS]:
+                    - Create a high-end architectural visualization.
+                    - Style: ${homeStyle}.
+                    - Focus: ${homeConcept}.
+                    - Current Construction Phase: ${isTimelapse ? currentPhase : homePhase}.
+                    - Use cinematic lighting, 8k resolution, and professional architectural photography aesthetic.
+                    - If 'Interior' is selected, focus on luxury furniture layout and lighting.
+                    - If 'Timelapse Mode' is selected, ensure each variation represents a clear step in the building's evolution to make it perfect for a viral short video.
+                `.trim();
+            }
+            else if (featureId === 'haji') {
+                finalPrompt = `
+                    [VARIATION ${i+1}]
+                    [TASK]: HAJI & UMRAH PHOTO TRANSFORMATION.
+                    [PACKAGE]: ${hajiPackage}
+                    [DESTINATION]: ${hajiDestination}
+                    [USER CONCEPT]: ${userPrompt}
+                    
+                    [STRICT INSTRUCTIONS]:
+                    - Lock and preserve the subject's Face DNA 100%.
+                    - Place the subject in the holy setting of ${hajiDestination}.
+                    - Attire: Subject MUST wear appropriate Ihram (for men) or modest Hijab/Abaya (for women) suitable for ${hajiPackage}.
+                    - Background: Use iconic landmarks like the Kaaba in Makkah, Masjid Al-Nabawi in Madinah, or other relevant locations in ${hajiDestination}.
+                    - Ensure a peaceful, spiritual, and respectful atmosphere.
+                    - High-end photography quality with realistic lighting.
                 `.trim();
             }
             else {
@@ -763,6 +832,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const isAnimationMode = selectedFeature?.id === 'animation';
   const isBarberMode = selectedFeature?.id === 'barber';
   const isLogoMode = selectedFeature?.id === 'logo';
+  const isHomeMode = selectedFeature?.id === 'home';
+  const isHajiMode = selectedFeature?.id === 'haji';
   
   const usesFaceDNA = ['faceswap', 'prewed', 'pasfoto', 'restore', 'artist', 'model', 'join', 'baby', 'kids', 'maternity'].includes(selectedFeature?.id || '');
   
@@ -833,21 +904,6 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 <p className="text-[11px] text-zinc-400 leading-relaxed font-medium italic">
                   {selectedFeature.description}
                 </p>
-              </div>
-            )}
-            
-            {selectedFeature.exampleImage && (
-              <div className="group relative aspect-video rounded-2xl overflow-hidden border border-zinc-800/50 bg-zinc-900/50">
-                <img 
-                  src={selectedFeature.exampleImage} 
-                  alt={`Contoh ${selectedFeature.label}`} 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                <div className="absolute bottom-3 left-4">
-                  <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">Contoh Konsep</span>
-                </div>
               </div>
             )}
           </div>
@@ -1061,13 +1117,14 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             {/* Custom Barbershop UI */}
             {isBarberMode && (
                <div className="flex flex-col gap-6">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner">
-                   <div className="space-y-3">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {/* Gender Selection Frame */}
+                   <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-4">
                      <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
                        Pilih Gender
                      </label>
-                     <div className="flex gap-2">
+                     <div className="flex flex-col gap-3">
                        {['Pria', 'Wanita'].map((g) => (
                          <button
                            key={g}
@@ -1075,60 +1132,108 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                              setBarberGender(g);
                              setBarberStyle('Pilih Model');
                            }}
-                           className={`flex-1 py-3 rounded-2xl text-xs font-bold transition-all border ${
+                           className={`w-full py-4 rounded-2xl text-xs font-bold transition-all border flex items-center justify-center gap-3 ${
                              barberGender === g 
                                ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.2)]' 
                                : 'bg-black/40 border-zinc-800 text-zinc-500 hover:border-zinc-700'
                            }`}
                          >
+                           {g === 'Pria' ? (
+                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                           ) : (
+                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                           )}
                            {g}
                          </button>
                        ))}
                      </div>
                    </div>
 
-                   <div className="space-y-3">
-                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
-                       Pilih Model Rambut ({barberGender})
-                     </label>
-                     <div className="relative">
-                       <select 
-                         value={barberStyle}
-                         onChange={(e) => setBarberStyle(e.target.value)}
-                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
-                       >
-                         <option>Pilih Model</option>
-                         {barberGender === 'Pria' ? (
-                           <>
-                             <option>Fade Modern (Low/Mid/High)</option>
-                             <option>Undercut Klasik</option>
-                             <option>Buzz Cut (Cepak)</option>
-                             <option>Pompadour</option>
-                             <option>Side Part (Belah Samping)</option>
-                             <option>Man Bun / Top Knot</option>
-                             <option>Mullet Modern</option>
-                             <option>Botak Licin (Clean Shave)</option>
-                             <option>Gaya Rambut Bergelombang</option>
-                             <option>Gaya Rambut Keriting (Perm)</option>
-                           </>
-                         ) : (
-                           <>
-                             <option>Long Layered Waves</option>
-                             <option>Bob Cut Modern (Short/Long)</option>
-                             <option>Pixie Cut (Pendek Maskulin)</option>
-                             <option>Rambut Berponi (Bangs)</option>
-                             <option>Shaggy Cut</option>
-                             <option>Wolf Cut</option>
-                             <option>Gaya Rambut Lurus Panjang</option>
-                             <option>Gaya Rambut Keriting Alami</option>
-                             <option>High Ponytail</option>
-                             <option>French Braid (Kepang)</option>
-                           </>
-                         )}
-                       </select>
-                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
-                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                   {/* Hair & Softlens Frame */}
+                   <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                     {/* Hair Model Dropdown */}
+                     <div className="space-y-3">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                         Pilih Model Rambut ({barberGender})
+                       </label>
+                       <div className="relative">
+                         <select 
+                           value={barberStyle}
+                           onChange={(e) => setBarberStyle(e.target.value)}
+                           className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                         >
+                           <option>Pilih Model</option>
+                           {barberGender === 'Pria' ? (
+                             <>
+                               <option>Fade Modern (Low/Mid/High)</option>
+                               <option>Undercut Klasik</option>
+                               <option>Buzz Cut (Cepak)</option>
+                               <option>Pompadour</option>
+                               <option>Side Part (Belah Samping)</option>
+                               <option>Man Bun / Top Knot</option>
+                               <option>Mullet Modern</option>
+                               <option>Botak Licin (Clean Shave)</option>
+                               <option>Gaya Rambut Bergelombang</option>
+                               <option>Gaya Rambut Keriting (Perm)</option>
+                             </>
+                           ) : (
+                             <>
+                               <option>Long Layered Waves</option>
+                               <option>Bob Cut Modern (Short/Long)</option>
+                               <option>Pixie Cut (Pendek Maskulin)</option>
+                               <option>Rambut Berponi (Bangs)</option>
+                               <option>Shaggy Cut</option>
+                               <option>Wolf Cut</option>
+                               <option>Gaya Rambut Lurus Panjang</option>
+                               <option>Gaya Rambut Keriting Alami</option>
+                               <option>High Ponytail</option>
+                               <option>French Braid (Kepang)</option>
+                             </>
+                           )}
+                         </select>
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </div>
+                       </div>
+                     </div>
+
+                     {/* Softlens Dropdown */}
+                     <div className="space-y-3">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div>
+                         Pilih Model Softlens
+                       </label>
+                       <div className="relative">
+                         <select 
+                           value={barberSoftlens}
+                           onChange={(e) => setBarberSoftlens(e.target.value)}
+                           className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                         >
+                           <option>Tanpa Softlens</option>
+                           <optgroup label="Natural Colors">
+                             <option>Natural Black (Deep)</option>
+                             <option>Dark Brown (Chocolate)</option>
+                             <option>Hazel (Light Brown)</option>
+                             <option>Honey (Golden Brown)</option>
+                           </optgroup>
+                           <optgroup label="Exotic Colors">
+                             <option>Grey (Misty Grey)</option>
+                             <option>Sky Blue (Crystal Blue)</option>
+                             <option>Emerald Green (Vibrant)</option>
+                             <option>Violet (Amethyst)</option>
+                             <option>Aqua (Turquoise)</option>
+                           </optgroup>
+                           <optgroup label="Patterned / Doll Eye">
+                             <option>Big Doll Eye (Black Ring)</option>
+                             <option>Galaxy Pattern (Sparkle)</option>
+                             <option>Marble Texture (Grey-Blue)</option>
+                             <option>Twilight (Amber-Gold)</option>
+                           </optgroup>
+                         </select>
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </div>
                        </div>
                      </div>
                    </div>
@@ -1174,65 +1279,379 @@ export const Workspace: React.FC<WorkspaceProps> = ({
             {/* Custom Vacation UI */}
             {isVacationMode && (
                <div className="flex flex-col gap-6">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner">
-                   <div className="space-y-3">
-                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                       <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                       Destinasi Liburan (Famous Countries)
-                     </label>
-                     <div className="relative">
-                       <select 
-                         value={vacationCountry}
-                         onChange={(e) => setVacationCountry(e.target.value)}
-                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
-                       >
-                         <option>Pilih Negara</option>
-                         <option>Swiss (Alpen & Salju)</option>
-                         <option>Jepang (Sakura & Kyoto)</option>
-                         <option>Prancis (Paris & Menara Eiffel)</option>
-                         <option>Italia (Venesia & Roma)</option>
-                         <option>Maladewa (Pantai & Resort)</option>
-                         <option>Amerika Serikat (NYC & Grand Canyon)</option>
-                         <option>Inggris (London & Big Ben)</option>
-                         <option>Korea Selatan (Seoul & Hanok)</option>
-                         <option>Australia (Sydney & Outback)</option>
-                         <option>Belanda (Kincir Angin & Tulip)</option>
-                       </select>
-                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
-                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {/* Vacation Section Frame */}
+                   <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                     <div className="space-y-3">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                         Pilih Negara
+                       </label>
+                       <div className="relative">
+                         <select 
+                           value={vacationCountry}
+                           onChange={(e) => {
+                             setVacationCountry(e.target.value);
+                             setVacationSpot('Pilih Tempat');
+                           }}
+                           className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                         >
+                           <option>Pilih Negara</option>
+                           <option>Swiss (Alpen & Salju)</option>
+                           <option>Jepang (Sakura & Kyoto)</option>
+                           <option>Prancis (Paris & Menara Eiffel)</option>
+                           <option>Italia (Venesia & Roma)</option>
+                           <option>Maladewa (Pantai & Resort)</option>
+                           <option>Amerika Serikat (NYC & Grand Canyon)</option>
+                           <option>Inggris (London & Big Ben)</option>
+                           <option>Korea Selatan (Seoul & Hanok)</option>
+                           <option>Australia (Sydney & Outback)</option>
+                           <option>Belanda (Kincir Angin & Tulip)</option>
+                         </select>
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </div>
+                       </div>
+                     </div>
+
+                     <div className="space-y-3">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                         Tempat Wisata Favorit
+                       </label>
+                       <div className="relative">
+                         <select 
+                           value={vacationSpot}
+                           onChange={(e) => setVacationSpot(e.target.value)}
+                           className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                         >
+                           <option>Pilih Tempat</option>
+                           {vacationCountry.includes('Swiss') && (
+                             <>
+                               <option>Puncak Jungfraujoch (Top of Europe)</option>
+                               <option>Danau Brienz (Turquoise Water)</option>
+                               <option>Zermatt (Matterhorn View)</option>
+                               <option>Lucerne Chapel Bridge</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Jepang') && (
+                             <>
+                               <option>Fushimi Inari Shrine (Torii Gates)</option>
+                               <option>Gunung Fuji (Danau Kawaguchiko)</option>
+                               <option>Shibuya Crossing (Tokyo Night)</option>
+                               <option>Kastil Osaka (Sakura Garden)</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Prancis') && (
+                             <>
+                               <option>Menara Eiffel (Paris Cityscape)</option>
+                               <option>Museum Louvre (Glass Pyramid)</option>
+                               <option>Mont Saint-Michel (Island Abbey)</option>
+                               <option>French Riviera (Nice Beach)</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Italia') && (
+                             <>
+                               <option>Colosseum (Ancient Rome)</option>
+                               <option>Kanal Venesia (Gondola Ride)</option>
+                               <option>Amalfi Coast (Cliffside Village)</option>
+                               <option>Menara Miring Pisa</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Maladewa') && (
+                             <>
+                               <option>Overwater Bungalow (Clear Water)</option>
+                               <option>Pantai Pasir Putih Maladewa</option>
+                               <option>Restoran Bawah Laut (Ithaa)</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Amerika Serikat') && (
+                             <>
+                               <option>Times Square (New York City)</option>
+                               <option>Grand Canyon National Park</option>
+                               <option>Jembatan Golden Gate (SF)</option>
+                               <option>Patung Liberty</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Inggris') && (
+                             <>
+                               <option>Big Ben & Parliament (London)</option>
+                               <option>Stonehenge (Ancient Mystery)</option>
+                               <option>Tower Bridge (Thames River)</option>
+                               <option>Cotswolds (English Village)</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Korea Selatan') && (
+                             <>
+                               <option>Istana Gyeongbokgung (Seoul)</option>
+                               <option>N Seoul Tower (Namsan)</option>
+                               <option>Bukchon Hanok Village</option>
+                               <option>Pulau Jeju (Hallasan)</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Australia') && (
+                             <>
+                               <option>Sydney Opera House</option>
+                               <option>Great Barrier Reef (Underwater)</option>
+                               <option>Uluru (Ayers Rock)</option>
+                               <option>Twelve Apostles (Great Ocean Road)</option>
+                             </>
+                           )}
+                           {vacationCountry.includes('Belanda') && (
+                             <>
+                               <option>Taman Keukenhof (Tulip Garden)</option>
+                               <option>Zaanse Schans (Windmills)</option>
+                               <option>Kanal Amsterdam (City View)</option>
+                               <option>Giethoorn (Water Village)</option>
+                             </>
+                           )}
+                         </select>
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </div>
                        </div>
                      </div>
                    </div>
 
-                   <div className="space-y-3">
-                     <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                       <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                       Suasana Ibadah (Non-Islam)
-                     </label>
-                     <div className="relative">
-                       <select 
-                         value={vacationWorship}
-                         onChange={(e) => setVacationWorship(e.target.value)}
-                         className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-3 text-xs text-zinc-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
-                       >
-                         <option>Pilih Ibadah</option>
-                         <option>Kristen (Gereja Katedral/Vatikan)</option>
-                         <option>Katolik (Misa/Kapel Klasik)</option>
-                         <option>Buddha (Kuil/Vihara/Pagoda)</option>
-                         <option>Hindu (Pura Bali/Kuil India)</option>
-                         <option>Konghucu (Klenteng/Temple)</option>
-                         <option>Shinto (Kuil Jepang/Torii Gate)</option>
-                         <option>Sikh (Gurdwara)</option>
-                         <option>Yahudi (Sinagoga)</option>
-                       </select>
-                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
-                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                   {/* Worship Section Frame */}
+                   <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                     <div className="space-y-3">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                         Pilih Agama (Non-Islam)
+                       </label>
+                       <div className="relative">
+                         <select 
+                           value={vacationReligion}
+                           onChange={(e) => {
+                             setVacationReligion(e.target.value);
+                             setVacationWorship('Pilih Ibadah');
+                           }}
+                           className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                         >
+                           <option>Pilih Agama</option>
+                           <option>Kristen</option>
+                           <option>Katolik</option>
+                           <option>Buddha</option>
+                           <option>Hindu</option>
+                           <option>Konghucu</option>
+                         </select>
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </div>
+                       </div>
+                     </div>
+
+                     <div className="space-y-3">
+                       <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                         Tempat Ibadah Terkenal
+                       </label>
+                       <div className="relative">
+                         <select 
+                           value={vacationWorship}
+                           onChange={(e) => setVacationWorship(e.target.value)}
+                           className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                         >
+                           <option>Pilih Ibadah</option>
+                           {vacationReligion === 'Kristen' && (
+                             <>
+                               <option>St. Peter's Basilica (Vatican City)</option>
+                               <option>Notre Dame Cathedral (Paris)</option>
+                               <option>Westminster Abbey (London)</option>
+                               <option>Sagrada Familia (Barcelona)</option>
+                             </>
+                           )}
+                           {vacationReligion === 'Katolik' && (
+                             <>
+                               <option>Sanctuary of Our Lady of Lourdes</option>
+                               <option>Sanctuary of Fatima (Portugal)</option>
+                               <option>Basilica of Our Lady of Guadalupe</option>
+                               <option>Duomo di Milano (Italy)</option>
+                             </>
+                           )}
+                           {vacationReligion === 'Buddha' && (
+                             <>
+                               <option>Candi Borobudur (Indonesia)</option>
+                               <option>Shwedagon Pagoda (Myanmar)</option>
+                               <option>Wat Arun (Thailand)</option>
+                               <option>Todai-ji Temple (Japan)</option>
+                             </>
+                           )}
+                           {vacationReligion === 'Hindu' && (
+                             <>
+                               <option>Candi Prambanan (Indonesia)</option>
+                               <option>Angkor Wat (Cambodia)</option>
+                               <option>Meenakshi Temple (India)</option>
+                               <option>Batu Caves Temple (Malaysia)</option>
+                             </>
+                           )}
+                           {vacationReligion === 'Konghucu' && (
+                             <>
+                               <option>Temple of Confucius (Qufu, China)</option>
+                               <option>Wong Tai Sin Temple (Hong Kong)</option>
+                               <option>Thian Hock Keng Temple (Singapore)</option>
+                             </>
+                           )}
+                         </select>
+                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                         </div>
                        </div>
                      </div>
                    </div>
                  </div>
                </div>
             )}
+
+             {/* Custom Home Design UI */}
+             {isHomeMode && (
+                <div className="flex flex-col gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Design Concept Frame */}
+                    <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                          Konsep Desain
+                        </label>
+                        <div className="relative">
+                          <select 
+                            value={homeConcept}
+                            onChange={(e) => setHomeConcept(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Arsitektur Luar</option>
+                            <option>Interior Mewah</option>
+                            <option>Tata Letak Perabotan</option>
+                            <option>Lanskap Taman</option>
+                            <option>Kolam Renang & Patio</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                          Gaya Arsitektur
+                        </label>
+                        <div className="relative">
+                          <select 
+                            value={homeStyle}
+                            onChange={(e) => setHomeStyle(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Modern Minimalist</option>
+                            <option>Industrial Loft</option>
+                            <option>Classic European</option>
+                            <option>Tropical Modern</option>
+                            <option>Futuristic / Sci-Fi</option>
+                            <option>Scandinavian</option>
+                            <option>Japanese Zen</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Timelapse Phase Frame */}
+                    <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                          Fase Pembangunan (Timelapse)
+                        </label>
+                        <div className="relative">
+                          <select 
+                            value={homePhase}
+                            onChange={(e) => setHomePhase(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Bangunan Jadi</option>
+                            <option>Sketch / Blueprint</option>
+                            <option>Pondasi & Struktur</option>
+                            <option>Pemasangan Dinding</option>
+                            <option className="text-yellow-500">Timelapse Mode (Viral Concept)</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                        <p className="text-[9px] text-zinc-500 italic">
+                          *Pilih 'Timelapse Mode' untuk menghasilkan 4 variasi fase pembangunan yang cocok dijadikan konten video viral.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+             )}
+
+             {/* Custom Haji & Umrah UI */}
+             {isHajiMode && (
+                <div className="flex flex-col gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Package Selection Frame */}
+                    <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                          Pilih Paket Ibadah
+                        </label>
+                        <div className="relative">
+                          <select 
+                            value={hajiPackage}
+                            onChange={(e) => setHajiPackage(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Umrah Reguler</option>
+                            <option>Umrah Plus Turkey</option>
+                            <option>Umrah Plus Egypt</option>
+                            <option>Umrah Plus Dubai</option>
+                            <option>Haji Plus / Furoda</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Destination Frame */}
+                    <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                          Destinasi & Landmark
+                        </label>
+                        <div className="relative">
+                          <select 
+                            value={hajiDestination}
+                            onChange={(e) => setHajiDestination(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Makkah & Madinah</option>
+                            <option>Depan Ka'bah (Masjidil Haram)</option>
+                            <option>Masjid Nabawi (Kubah Hijau)</option>
+                            <option>Jabal Rahmah (Arafah)</option>
+                            <option>Tenda Mina</option>
+                            {hajiPackage.includes('Turkey') && <option>Blue Mosque (Istanbul)</option>}
+                            {hajiPackage.includes('Egypt') && <option>Piramida Giza (Cairo)</option>}
+                            {hajiPackage.includes('Dubai') && <option>Burj Khalifa (Dubai)</option>}
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+             )}
 
            {/* Custom Product UI */}
            {isProductMode && (
