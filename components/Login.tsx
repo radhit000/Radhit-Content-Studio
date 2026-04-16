@@ -20,7 +20,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' | 'info' } | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: 'error' | 'success' | 'info'; link?: string; linkText?: string } | null>(null);
+
+  const isInIframe = window.self !== window.top;
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -35,6 +37,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
       // Handle specific Firebase Auth errors
       if (error.code === 'auth/network-request-failed' || error.message?.includes('network-request-failed')) {
         errorMsg = "Koneksi gagal (Network Error). Ini biasanya terjadi karena batasan browser di dalam preview. Silakan klik tombol 'Buka di Tab Baru' di bawah untuk login dengan lancar.";
+      } else if (error.code === 'auth/popup-closed-by-user' || error.message?.includes('popup-closed-by-user')) {
+        errorMsg = "Popup login ditutup sebelum selesai. Jika popup tidak muncul atau langsung tertutup, silakan gunakan tombol 'Buka di Tab Baru' di bawah (Sangat Direkomendasikan).";
+      } else if (error.code === 'auth/cancelled-popup-request' || error.message?.includes('cancelled-popup-request')) {
+        errorMsg = "Permintaan login dibatalkan. Pastikan Anda tidak membuka banyak jendela login sekaligus.";
       } else if (error.code === 'auth/the-service-is-currently-unavailable' || error.message?.includes('service-is-currently-unavailable')) {
         errorMsg = "Layanan Autentikasi Firebase belum aktif atau domain belum diizinkan. Silakan hubungi Admin untuk mengaktifkan 'Identity Toolkit API' dan menambahkan domain aplikasi ke 'Authorized Domains' di Firebase Console.";
       } else if (error.code === 'auth/unauthorized-domain') {
@@ -133,6 +139,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
           </p>
         </div>
 
+        {isInIframe && !message && (
+          <div className="mb-6 p-4 bg-amber-900/10 border border-amber-900/50 rounded-lg text-xs text-amber-200 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-amber-500 shrink-0">
+              <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.599-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+            </svg>
+            <p>
+              <span className="font-bold">Penting:</span> Login Google mungkin terhambat di dalam preview. Gunakan tombol <span className="font-bold text-white">"Buka di Tab Baru"</span> di bawah jika mengalami kendala.
+            </p>
+          </div>
+        )}
+
         {message && (
           <div className={`mb-6 p-4 rounded-lg text-sm border font-light ${
             message.type === 'error' ? 'bg-red-900/10 border-red-900/50 text-red-200' : 
@@ -140,6 +157,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
             'bg-green-900/10 border-green-900/50 text-green-200'
           }`}>
             {message.text}
+            {message.link && (
+              <a 
+                href={message.link} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="block mt-2 underline text-blue-400 hover:text-blue-300 font-medium"
+              >
+                {message.linkText || 'Klik di sini'}
+              </a>
+            )}
           </div>
         )}
 
@@ -209,7 +236,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, appSettings = DEFA
 
           <button 
             onClick={openInNewTab}
-            className="w-full py-3 px-4 bg-zinc-900 text-zinc-400 font-medium rounded-xl hover:bg-zinc-800 hover:text-white transition-all border border-zinc-800 flex items-center justify-center gap-3 elegant-caps text-[10px]"
+            className={`w-full py-3 px-4 bg-zinc-900 text-zinc-400 font-medium rounded-xl hover:bg-zinc-800 hover:text-white transition-all border border-zinc-800 flex items-center justify-center gap-3 elegant-caps text-[10px] ${isInIframe ? 'animate-pulse border-amber-500/50' : ''}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />

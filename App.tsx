@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { Workspace } from './components/Workspace';
 import { ApiKeySettings } from './components/ApiKeySettings';
 import { Login } from './components/Login';
+import { PendingApproval } from './components/PendingApproval';
 import { AdminDashboard } from './components/AdminDashboard';
 import { AppState, ErrorState, FeatureItem, ProcessedImage, AppSettings, User } from './types';
 import { editImageWithGemini } from './services/geminiService';
@@ -283,6 +284,10 @@ const App: React.FC = () => {
 
   if (!currentUser) {
     return <Login onLoginSuccess={setCurrentUser} appSettings={appSettings} />;
+  }
+
+  if (currentUser.status === 'PENDING' || currentUser.status === 'INACTIVE') {
+    return <PendingApproval onLogout={handleLogout} appSettings={appSettings} status={currentUser.status} />;
   }
   
   return (

@@ -83,6 +83,11 @@ export const Workspace: React.FC<WorkspaceProps> = ({
   const [homeConcept, setHomeConcept] = useState('Arsitektur Luar');
   const [homeStyle, setHomeStyle] = useState('Modern Minimalist');
   const [homePhase, setHomePhase] = useState('Bangunan Jadi');
+  const [homeBuildingType, setHomeBuildingType] = useState('Rumah Tinggal');
+  const [homeRoomType, setHomeRoomType] = useState('Ruang Tamu');
+  const [homeEnvironment, setHomeEnvironment] = useState('Perkotaan');
+  const [homeLighting, setHomeLighting] = useState('Natural Daylight');
+  const [homeMaterial, setHomeMaterial] = useState('Beton & Industrial');
 
   // Haji & Umrah Feature States
   const [hajiPackage, setHajiPackage] = useState('Umrah Reguler');
@@ -126,6 +131,11 @@ export const Workspace: React.FC<WorkspaceProps> = ({
     setHomeConcept('Arsitektur Luar');
     setHomeStyle('Modern Minimalist');
     setHomePhase('Bangunan Jadi');
+    setHomeBuildingType('Rumah Tinggal');
+    setHomeRoomType('Ruang Tamu');
+    setHomeEnvironment('Perkotaan');
+    setHomeLighting('Natural Daylight');
+    setHomeMaterial('Beton & Industrial');
     setHajiPackage('Umrah Reguler');
     setHajiDestination('Makkah & Madinah');
     setExpandSettings({ top: 0, right: 0, bottom: 0, left: 0 });
@@ -466,20 +476,28 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                 
                 finalPrompt = `
                     [VARIATION ${i+1}]
-                    [TASK]: VIRAL HOME DESIGN TIMELAPSE CONCEPT.
+                    [TASK]: VIRAL HOME DESIGN & CONSTRUCTION CONCEPT.
+                    [BUILDING TYPE]: ${homeBuildingType}
+                    [ROOM TYPE]: ${homeRoomType}
                     [CONCEPT]: ${homeConcept}
                     [STYLE]: ${homeStyle}
                     [PHASE]: ${isTimelapse ? currentPhase : homePhase}
+                    [ENVIRONMENT]: ${homeEnvironment}
+                    [LIGHTING]: ${homeLighting}
+                    [MATERIAL]: ${homeMaterial}
                     [USER CONCEPT]: ${userPrompt}
                     
                     [STRICT INSTRUCTIONS]:
-                    - Create a high-end architectural visualization.
+                    - Create a high-end architectural visualization for a ${homeBuildingType}.
                     - Style: ${homeStyle}.
-                    - Focus: ${homeConcept}.
+                    - Focus: ${homeConcept} (specifically ${homeRoomType} if interior).
+                    - Environment: ${homeEnvironment}.
+                    - Lighting: ${homeLighting}.
+                    - Primary Materials: ${homeMaterial}.
                     - Current Construction Phase: ${isTimelapse ? currentPhase : homePhase}.
                     - Use cinematic lighting, 8k resolution, and professional architectural photography aesthetic.
-                    - If 'Interior' is selected, focus on luxury furniture layout and lighting.
                     - If 'Timelapse Mode' is selected, ensure each variation represents a clear step in the building's evolution to make it perfect for a viral short video.
+                    - Ensure the design is realistic, functional, and aesthetically pleasing.
                 `.trim();
             }
             else if (featureId === 'haji') {
@@ -1507,13 +1525,13 @@ export const Workspace: React.FC<WorkspaceProps> = ({
              {/* Custom Home Design UI */}
              {isHomeMode && (
                 <div className="flex flex-col gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Design Concept Frame */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Design Concept & Style Frame */}
                     <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
                       <div className="space-y-3">
                         <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                          Konsep Desain
+                          Konsep & Gaya
                         </label>
                         <div className="relative">
                           <select 
@@ -1534,10 +1552,6 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                       </div>
 
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                          Gaya Arsitektur
-                        </label>
                         <div className="relative">
                           <select 
                             value={homeStyle}
@@ -1551,6 +1565,8 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                             <option>Futuristic / Sci-Fi</option>
                             <option>Scandinavian</option>
                             <option>Japanese Zen</option>
+                            <option>Mediterranean</option>
+                            <option>Art Deco</option>
                           </select>
                           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -1559,14 +1575,130 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                       </div>
                     </div>
 
-                    {/* Timelapse Phase Frame */}
+                    {/* Building & Room Type Frame */}
                     <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
                       <div className="space-y-3">
                         <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
-                          Fase Pembangunan (Timelapse)
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                          Tipe Bangunan & Ruangan
                         </label>
                         <div className="relative">
+                          <select 
+                            value={homeBuildingType}
+                            onChange={(e) => setHomeBuildingType(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Rumah Tinggal</option>
+                            <option>Apartemen / Kondominium</option>
+                            <option>Villa / Resort</option>
+                            <option>Kantor Modern</option>
+                            <option>Cafe / Restoran</option>
+                            <option>Hotel Lobby</option>
+                            <option>Gedung Pencakar Langit</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <select 
+                            value={homeRoomType}
+                            onChange={(e) => setHomeRoomType(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Ruang Tamu</option>
+                            <option>Kamar Tidur Utama</option>
+                            <option>Dapur Modern</option>
+                            <option>Kamar Mandi Mewah</option>
+                            <option>Ruang Kerja / Studio</option>
+                            <option>Home Theater</option>
+                            <option>Walk-in Closet</option>
+                            <option>Balkon / Rooftop</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Atmosphere & Material Frame */}
+                    <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                          Atmosfer & Material
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="relative">
+                            <select 
+                              value={homeEnvironment}
+                              onChange={(e) => setHomeEnvironment(e.target.value)}
+                              className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-4 py-3 text-[10px] text-zinc-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                            >
+                              <option>Perkotaan</option>
+                              <option>Pedesaan</option>
+                              <option>Pesisir Pantai</option>
+                              <option>Pegunungan</option>
+                              <option>Hutan Tropis</option>
+                              <option>Gurun Pasir</option>
+                            </select>
+                          </div>
+                          <div className="relative">
+                            <select 
+                              value={homeLighting}
+                              onChange={(e) => setHomeLighting(e.target.value)}
+                              className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-4 py-3 text-[10px] text-zinc-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                            >
+                              <option>Natural Daylight</option>
+                              <option>Golden Hour</option>
+                              <option>Artificial Evening</option>
+                              <option>Cinematic Moody</option>
+                              <option>Neon / Cyber</option>
+                              <option>Soft Studio</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <select 
+                            value={homeMaterial}
+                            onChange={(e) => setHomeMaterial(e.target.value)}
+                            className="w-full bg-black/40 border border-zinc-700/50 rounded-2xl px-5 py-4 text-xs text-zinc-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none cursor-pointer font-bold"
+                          >
+                            <option>Beton & Industrial</option>
+                            <option>Kayu & Alami</option>
+                            <option>Kaca & Modern</option>
+                            <option>Marmer & Mewah</option>
+                            <option>Batu Alam & Rustik</option>
+                            <option>Baja & Metalik</option>
+                            <option>Bata Ekspos</option>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Timelapse Phase Frame (Full Width on LG) */}
+                    <div className="bg-zinc-900/60 p-6 rounded-3xl border border-zinc-800/50 shadow-inner space-y-6 lg:col-span-3">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+                            Fase Pembangunan (Timelapse)
+                          </label>
+                          <p className="text-[9px] text-zinc-500 italic">
+                            *Pilih 'Timelapse Mode' untuk menghasilkan 4 variasi fase pembangunan yang cocok dijadikan konten video viral.
+                          </p>
+                        </div>
+                        <div className="relative min-w-[250px]">
                           <select 
                             value={homePhase}
                             onChange={(e) => setHomePhase(e.target.value)}
@@ -1582,9 +1714,6 @@ export const Workspace: React.FC<WorkspaceProps> = ({
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                           </div>
                         </div>
-                        <p className="text-[9px] text-zinc-500 italic">
-                          *Pilih 'Timelapse Mode' untuk menghasilkan 4 variasi fase pembangunan yang cocok dijadikan konten video viral.
-                        </p>
                       </div>
                     </div>
                   </div>
